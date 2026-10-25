@@ -6,6 +6,7 @@ import {
   getTrendController,
   getDailyController,
   compareMonthsController,
+  getForecastController,
 } from '../controllers/analytics.controller.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
@@ -55,6 +56,14 @@ const compareSchema = z.object({
   params: z.object({}),
 });
 
+const forecastSchema = z.object({
+  body: z.object({}),
+  query: z.object({
+    now: z.string().datetime({ offset: true }).optional(), // For testing: fixed date in ISO format
+  }),
+  params: z.object({}),
+});
+
 // All analytics routes require authentication
 router.use(authMiddleware);
 
@@ -63,5 +72,6 @@ router.get('/by-category', validate(byCategorySchema), getByCategoryController);
 router.get('/trend', validate(trendSchema), getTrendController);
 router.get('/daily', validate(dailySchema), getDailyController);
 router.get('/compare', validate(compareSchema), compareMonthsController);
+router.get('/forecast', validate(forecastSchema), getForecastController);
 
 export default router;

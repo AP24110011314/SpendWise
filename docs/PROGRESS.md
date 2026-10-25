@@ -12,7 +12,7 @@ Claude Code: update this file at the end of every phase. Keep entries short and 
 | 4 | Budgets & Notifications | ✅ | |
 | 5 | Recurring Transactions | ✅ | |
 | 6 | CSV Import / Export | ✅ | |
-| 7 | Forecast & Comparison | ☐ | |
+| 7 | Forecast & Comparison | ✅ | |
 | 8 | Seed, Polish, Production | ☐ | |
 
 ## Phase notes
@@ -105,6 +105,22 @@ Claude Code: update this file at the end of every phase. Keep entries short and 
 - **Fixed multer error handling**: non-CSV/oversized files now return 400 not 500
 
 **Tests**: 171 server tests passing (19 auth + 22 category + 34 transaction + 20 analytics + 35 budget + 23 recurring + 17 import + 1 health), 1 client test passing
+
+### Phase 7 — Forecast & Comparison
+- **Forecast service**: getForecast(userId, now, tz) implementing AGGREGATIONS.md section 9 specification
+- **Run-rate projection**: spent_c + (variableSpent_c / e) * r + upcomingRecurring_c
+- **History projection (WMA)**: weighted moving average of last 3 complete months with weights 0.5, 0.3, 0.2 (most recent gets 0.5)
+- **Blend**: α = e / D; projected = α * runRate + (1-α) * max(WMA, spent + upcomingRecurring)
+- **Floor**: projected = max(projected, spent + upcomingRecurring); never returns NaN
+- **Upcoming recurring**: computes future occurrences from active RecurringRule within current month
+- **Recurring spend separation**: distinguishes variable spend vs recurring-generated spend in current month
+- **Confidence levels**: low (e < 5 or no history), medium (e >= 5, history < 3), high (e >= 10, 3 months history)
+- **Budget integration**: overall budget (categoryId: null) checked for willExceed
+- **Categories with only upcoming recurring**: included in forecast even with zero current spend
+- **Testable with fixed clock**: accepts `now` parameter for deterministic testing
+- **Endpoint**: GET /api/analytics/forecast with optional `now` query param for testing
+
+**Tests**: 182 server tests passing (19 auth + 22 category + 34 transaction + 20 analytics + 35 budget + 23 recurring + 17 import + 11 forecast + 1 health), 1 client test passing
 
 ## Decisions
 - Money stored as integer minor units (cents/paise), converted only at UI edge

@@ -4,6 +4,7 @@ import {
   getTrend,
   getDaily,
   compareMonths,
+  getForecast,
 } from '../services/analytics.service.js';
 import { ApiError } from '../utils/ApiError.js';
 
@@ -56,6 +57,17 @@ export async function compareMonthsController(req, res, next) {
     const { monthA, monthB } = req.validated.query;
     const tz = req.user.timezone || 'Asia/Kolkata';
     const data = await compareMonths(req.userId, monthA, monthB, tz);
+    res.json({ data });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getForecastController(req, res, next) {
+  try {
+    const tz = req.user.timezone || 'Asia/Kolkata';
+    const now = req.validated.query.now ? new Date(req.validated.query.now) : new Date();
+    const data = await getForecast(req.userId, now, tz);
     res.json({ data });
   } catch (err) {
     next(err);
