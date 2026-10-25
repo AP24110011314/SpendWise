@@ -2,6 +2,8 @@ import { Transaction } from '../models/Transaction.js';
 import { Category } from '../models/Category.js';
 import { ApiError } from '../utils/ApiError.js';
 import { generateFingerprint } from '../models/Transaction.js';
+import { evaluateBudgets } from './budget.service.js';
+import { currentMonth } from '../utils/dates.js';
 
 async function validateCategoryOwnership(userId, categoryId, expectedType) {
   const category = await Category.findOne({ _id: categoryId, userId });
@@ -37,6 +39,10 @@ export async function createTransaction(userId, data, now = new Date()) {
     note: note || '',
     fingerprint,
   });
+
+  // Evaluate budgets for the transaction's category and month
+  const month = currentMonth();
+  await evaluateBudgets(userId, categoryId, month);
 
   return transaction;
 }
@@ -151,6 +157,10 @@ export async function updateTransaction(userId, transactionId, data, now = new D
     }
   }
 
+  const oldCategoryId = transaction.categoryId;
+  const oldDate = transaction.date;
+  const oldMonth = currentMonth('Asia/Kolkata', oldDate);
+
   transaction.categoryId = newCategoryId;
   transaction.type = newType;
   transaction.amount = newAmount;
@@ -159,6 +169,18 @@ export async function updateTransaction(userId, transactionId, data, now = new D
   transaction.fingerprint = newFingerprint;
 
   await transaction.save();
+
+  // Evaluate budgets for both old and new category/month combinations
+  const newMonth = currentMonth('Asia/Kolkata', newDate);
+  if (oldCategoryId !== newCategoryId || oldMonth !== newMonth) {
+    // If category or month changed, evaluate both
+    await evaluateBudgets(userId, oldCategoryId, oldMonth);
+    await evaluateBudgets(userId, newCategoryId, newMonth);
+  } else {
+    // Same category and month, just evaluate once
+    await evaluateBudgets(userId, newCategoryId, newMonth);
+  }
+
   return transaction;
 }
 
@@ -167,10 +189,31 @@ export async function deleteTransaction(userId, transactionId) {
   if (!transaction) {
     throw ApiError.notFound('Transaction not found');
   }
+
+  // Evaluate budgets for the deleted transaction's category and month
+  const month = currentMonth(transaction.date);
+  await evaluateBudgets(userId, transaction.categoryId, month);
+
   return { success: true };
 }
 
 export async function bulkDeleteTransactions(userId, ids) {
+  // Fetch transactions first to get category/month info for budget evaluation
+  const transactions = await Transaction.find({ _id: { $in: ids }, userId }).lean();
+
   const result = await Transaction.deleteMany({ _id: { $in: ids }, userId });
+
+  // Evaluate budgets for all unique category/month combinations
+  const combinations = new Set();
+  for (const tx of transactions) {
+    const month = currentMonth(tx.date);
+    combinations.add(`${tx.categoryId}:${month}`);
+  }
+
+  for (const combo of combinations) {
+    const [categoryId, month] = combo.split(':');
+    await evaluateBudgets(userId, categoryId, month);
+  }
+
   return { deletedCount: result.deletedCount };
 }

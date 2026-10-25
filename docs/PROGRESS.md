@@ -9,7 +9,7 @@ Claude Code: update this file at the end of every phase. Keep entries short and 
 | 1 | Auth & Categories | ✅ | |
 | 2 | Transactions | ✅ | |
 | 3 | Analytics & Dashboard | ✅ | |
-| 4 | Budgets & Notifications | ☐ | |
+| 4 | Budgets & Notifications | ✅ | |
 | 5 | Recurring Transactions | ☐ | |
 | 6 | CSV Import / Export | ☐ | |
 | 7 | Forecast & Comparison | ☐ | |
@@ -61,6 +61,17 @@ Claude Code: update this file at the end of every phase. Keep entries short and 
 - **Fixed ObjectId comparison bug**: categoryId converted to string in aggregation ($toString) for proper Set deduplication in compare function
 
 **Tests**: 96 server tests passing (19 auth + 22 category + 34 transaction + 20 analytics + 1 health), 1 client test passing
+
+### Phase 4 — Budgets & Notifications
+- **Budget service**: CRUD operations, progress aggregation pipeline with $lookup to transactions and categories, evaluateBudgets after transaction changes, copyBudgets for month-to-month duplication
+- **Notification service**: auto-create budget_warning (at alertThreshold %) and budget_exceeded (>=100%) notifications, list/mark-read/mark-all-read with 50-item limit
+- **Budget routes**: POST /budgets, GET /budgets?month, GET /budgets/:id, PATCH /budgets/:id, DELETE /budgets/:id, GET /budgets/progress?month, POST /budgets/copy, GET /budgets/notifications?unreadOnly, PATCH /budgets/notifications/:id/read, POST /budgets/notifications/read-all
+- **Budget evaluation hook**: integrated into transaction service create/update/delete/bulk-delete — re-evaluates affected category/month combinations (handles category/month changes on update)
+- **MongoDB aggregation**: progress pipeline calculates spent, remaining, percentage, status (ok/warning/exceeded) per budget with category name/color via $lookup
+- **Fixed currentMonth parameter order bug**: was passing date as timezone parameter; corrected to currentMonth('Asia/Kolkata', date)
+- Route ordering: notifications routes placed before /:id routes to avoid "notifications" matching as invalid ObjectId
+
+**Tests**: 131 server tests passing (19 auth + 22 category + 34 transaction + 20 analytics + 35 budget + 1 health), 1 client test passing
 
 ## Decisions
 - Money stored as integer minor units (cents/paise), converted only at UI edge
