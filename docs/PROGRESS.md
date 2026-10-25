@@ -11,7 +11,7 @@ Claude Code: update this file at the end of every phase. Keep entries short and 
 | 3 | Analytics & Dashboard | ✅ | |
 | 4 | Budgets & Notifications | ✅ | |
 | 5 | Recurring Transactions | ✅ | |
-| 6 | CSV Import / Export | ☐ | |
+| 6 | CSV Import / Export | ✅ | |
 | 7 | Forecast & Comparison | ☐ | |
 | 8 | Seed, Polish, Production | ☐ | |
 
@@ -86,6 +86,25 @@ Claude Code: update this file at the end of every phase. Keep entries short and 
 - **Fixed query param coercion**: activeOnly uses z.coerce.boolean()
 
 **Tests**: 154 server tests passing (19 auth + 22 category + 34 transaction + 20 analytics + 35 budget + 23 recurring + 1 health), 1 client test passing
+
+### Phase 6 — CSV Import / Export
+- **Import service**: previewImport, commitImport, undoImport, exportTransactions with full fingerprint deduplication
+- **Delimiter auto-detection**: handles comma, semicolon, tab, pipe delimiters (European formats supported)
+- **Amount parsing**: single column (signed amounts) and split debit/credit columns; European number format (1.234,56)
+- **Date parsing**: 12+ formats including ISO, DD/MM/YYYY, MM/DD/YYYY, DD.MM.YYYY, DD MMM YYYY, etc.
+- **Category resolution**: find or create category by name from CSV, type-aware defaults
+- **Preview endpoint**: POST /api/import/preview returns suggested mapping, validation errors with row numbers
+- **Commit endpoint**: POST /api/import/commit creates ImportBatch record, bulk inserts transactions, skips duplicates via fingerprint
+- **Undo endpoint**: POST /api/import/:id/undo deletes exact batch transactions using createdAt window
+- **History endpoint**: GET /api/import/history lists all import batches with counts
+- **Export endpoint**: GET /api/import/export?month&type&categoryId&amountMin&amountMax&search returns CSV with headers
+- **Multer integration**: 5MB limit, memory storage, CSV-only file filter, proper 400 errors for bad files
+- **Round-trip tested**: exported CSV re-imports cleanly, all rows skipped as duplicates
+- **Fixed delimiter detection bug**: parseCsv default parameter prevented detectDelimiter call
+- **Fixed fingerprint signature**: consolidated to utils/fingerprint.js with object parameter (userId, categoryId, type, amount, date, note)
+- **Fixed multer error handling**: non-CSV/oversized files now return 400 not 500
+
+**Tests**: 171 server tests passing (19 auth + 22 category + 34 transaction + 20 analytics + 35 budget + 23 recurring + 17 import + 1 health), 1 client test passing
 
 ## Decisions
 - Money stored as integer minor units (cents/paise), converted only at UI edge

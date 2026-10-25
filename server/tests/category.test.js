@@ -4,7 +4,8 @@ import { setup, teardown } from './setup.js';
 import { connectDB } from '../src/config/db.js';
 import { User } from '../src/models/User.js';
 import { Category } from '../src/models/Category.js';
-import { Transaction, generateFingerprint } from '../src/models/Transaction.js';
+import { Transaction } from '../src/models/Transaction.js';
+import { generateFingerprint } from '../src/utils/fingerprint.js';
 import { Budget } from '../src/models/Budget.js';
 import { RecurringRule } from '../src/models/RecurringRule.js';
 
@@ -269,7 +270,14 @@ describe('Category Routes', () => {
     it('should return 409 when category is in use without reassignTo', async () => {
       // Create a transaction using the category
       const date = new Date();
-      const fingerprint = generateFingerprint(userId, date, 'expense', 1000, '');
+      const fingerprint = generateFingerprint({
+        userId,
+        categoryId,
+        type: 'expense',
+        amount: 1000,
+        date,
+        note: '',
+      });
       await Transaction.create({
         userId,
         categoryId,
@@ -290,7 +298,14 @@ describe('Category Routes', () => {
     it('should reassign transactions when reassignTo provided', async () => {
       // Create a transaction using the category
       const date = new Date();
-      const fingerprint = generateFingerprint(userId, date, 'expense', 1000, '');
+      const fingerprint = generateFingerprint({
+        userId,
+        categoryId,
+        type: 'expense',
+        amount: 1000,
+        date,
+        note: '',
+      });
       await Transaction.create({
         userId,
         categoryId,

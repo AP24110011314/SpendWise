@@ -1,0 +1,7 @@
+Date,Amount,Description,Category
+2026-01-15,-125.50,Groceries,Food
+invalid-date,-50.00,Bad Date,Food
+2026-01-20,not-a-number,Invalid Amount,Income
+2026-01-25,-45.00,Gas,Transport
+,100.00,Missing Date,Food
+2026-02-01,-89.99,Utilities,Bills

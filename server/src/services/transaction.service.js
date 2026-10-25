@@ -1,7 +1,7 @@
 import { Transaction } from '../models/Transaction.js';
 import { Category } from '../models/Category.js';
 import { ApiError } from '../utils/ApiError.js';
-import { generateFingerprint } from '../models/Transaction.js';
+import { generateFingerprint } from '../utils/fingerprint.js';
 import { evaluateBudgets } from './budget.service.js';
 import { currentMonth } from '../utils/dates.js';
 
@@ -22,7 +22,7 @@ export async function createTransaction(userId, data, now = new Date()) {
   await validateCategoryOwnership(userId, categoryId, type);
 
   const txDate = new Date(date);
-  const fingerprint = generateFingerprint(userId, txDate, type, amount, note || '');
+  const fingerprint = generateFingerprint({ userId, categoryId, type, amount, date: txDate, note: note || '' });
 
   // Check for duplicate fingerprint
   const existing = await Transaction.findOne({ userId, fingerprint });
@@ -146,7 +146,7 @@ export async function updateTransaction(userId, transactionId, data, now = new D
   // Recalculate fingerprint if relevant fields changed
   let newFingerprint = transaction.fingerprint;
   if (categoryId || type || amount || date || note !== undefined) {
-    newFingerprint = generateFingerprint(userId, newDate, newType, newAmount, newNote);
+    newFingerprint = generateFingerprint({ userId, categoryId: newCategoryId, type: newType, amount: newAmount, date: newDate, note: newNote });
     const existing = await Transaction.findOne({
       userId,
       fingerprint: newFingerprint,

@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import crypto from 'crypto';
 
 const transactionSchema = new mongoose.Schema(
   {
@@ -31,10 +30,3 @@ transactionSchema.index(
 );
 
 export const Transaction = mongoose.model('Transaction', transactionSchema);
-
-export function generateFingerprint(userId, date, type, amount, note) {
-  const normalizedNote = note.toLowerCase().replace(/\s+/g, ' ').trim();
-  const dateStr = date.toISOString().split('T')[0];
-  const str = `${dateStr}|${type}|${amount}|${normalizedNote}`;
-  return crypto.createHash('sha1').update(str).digest('hex');
-}

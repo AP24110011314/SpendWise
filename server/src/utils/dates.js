@@ -1,6 +1,35 @@
 import { DateTime } from 'luxon';
 
 /**
+ * Parse a date string in a specific format.
+ * @param {string} str - Date string to parse
+ * @param {string} fmt - Luxon format string (e.g., 'yyyy-MM-dd', 'dd/MM/yyyy')
+ * @param {string} [tz='Asia/Kolkata'] - IANA timezone string
+ * @returns {Date|null} - Parsed date in UTC, or null if invalid
+ */
+export function parseDate(str, fmt, tz = 'Asia/Kolkata') {
+  if (!str) return null;
+  try {
+    const dt = DateTime.fromFormat(str, fmt, { zone: tz });
+    if (!dt.isValid) return null;
+    return dt.toUTC().toJSDate();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Format a date as YYYY-MM-DD string in a given timezone.
+ * @param {Date} date - Date to format
+ * @param {string} [tz='Asia/Kolkata'] - IANA timezone string
+ * @returns {string} - Date in YYYY-MM-DD format
+ */
+export function formatDateForCsv(date, tz = 'Asia/Kolkata') {
+  if (!date) return '';
+  return DateTime.fromJSDate(date, { zone: tz }).toFormat('yyyy-MM-dd');
+}
+
+/**
  * Get the start and end of a month in UTC for a given timezone.
  * @param {string} month - Month in 'YYYY-MM' format
  * @param {string} tz - IANA timezone string (e.g., 'Asia/Kolkata')

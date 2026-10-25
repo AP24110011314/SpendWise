@@ -3,7 +3,7 @@ import { RecurringRule } from '../models/RecurringRule.js';
 import { Transaction } from '../models/Transaction.js';
 import { Category } from '../models/Category.js';
 import { ApiError } from '../utils/ApiError.js';
-import { generateFingerprint } from '../models/Transaction.js';
+import { generateFingerprint } from '../utils/fingerprint.js';
 import { currentMonth, monthRange, nextOccurrence, getDueOccurrences } from '../utils/dates.js';
 
 /**
@@ -194,13 +194,14 @@ export async function processDueRules(userId, now = new Date(), tz = 'Asia/Kolka
 
       for (const occurrenceDate of occurrences) {
         // Check for existing transaction with same fingerprint to avoid duplicates
-        const fingerprint = generateFingerprint(
+        const fingerprint = generateFingerprint({
           userId,
-          occurrenceDate,
-          rule.type,
-          rule.amount,
-          rule.note || ''
-        );
+          categoryId: rule.categoryId,
+          type: rule.type,
+          amount: rule.amount,
+          date: occurrenceDate,
+          note: rule.note || '',
+        });
 
         const existing = await Transaction.findOne({ userId, fingerprint });
         if (existing) {
