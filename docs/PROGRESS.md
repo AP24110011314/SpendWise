@@ -8,7 +8,7 @@ Claude Code: update this file at the end of every phase. Keep entries short and 
 | 0 | Scaffold | ✅ | |
 | 1 | Auth & Categories | ✅ | |
 | 2 | Transactions | ✅ | |
-| 3 | Analytics & Dashboard | ☐ | |
+| 3 | Analytics & Dashboard | ✅ | |
 | 4 | Budgets & Notifications | ☐ | |
 | 5 | Recurring Transactions | ☐ | |
 | 6 | CSV Import / Export | ☐ | |
@@ -52,6 +52,15 @@ Claude Code: update this file at the end of every phase. Keep entries short and 
 - Fixed amountSchema to use z.coerce.number() for query parameter parsing
 
 **Tests**: 76 server tests passing (19 auth + 22 category + 34 transaction + 1 health), 1 client test passing
+
+### Phase 3 — Analytics & Dashboard
+- **Analytics service**: summary, by-category, trend (last N months, zero-filled), daily series with cumulative expenses, month-over-month comparison with delta and percentage
+- **Date utilities**: timezone-aware month ranges (Asia/Kolkata default), day-of-month, month shifting, zero-filling helpers using Luxon
+- **Analytics routes**: GET /summary, /by-category, /trend, /daily, /compare with full Zod validation and optional month parameters
+- **MongoDB aggregation pipelines**: $match by userId and timezone-aware date ranges, $group with $dateToString using timezone, $lookup for category details, zero-filling in JS
+- **Fixed ObjectId comparison bug**: categoryId converted to string in aggregation ($toString) for proper Set deduplication in compare function
+
+**Tests**: 96 server tests passing (19 auth + 22 category + 34 transaction + 20 analytics + 1 health), 1 client test passing
 
 ## Decisions
 - Money stored as integer minor units (cents/paise), converted only at UI edge
