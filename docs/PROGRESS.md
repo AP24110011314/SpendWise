@@ -10,7 +10,7 @@ Claude Code: update this file at the end of every phase. Keep entries short and 
 | 2 | Transactions | ✅ | |
 | 3 | Analytics & Dashboard | ✅ | |
 | 4 | Budgets & Notifications | ✅ | |
-| 5 | Recurring Transactions | ☐ | |
+| 5 | Recurring Transactions | ✅ | |
 | 6 | CSV Import / Export | ☐ | |
 | 7 | Forecast & Comparison | ☐ | |
 | 8 | Seed, Polish, Production | ☐ | |
@@ -72,6 +72,20 @@ Claude Code: update this file at the end of every phase. Keep entries short and 
 - Route ordering: notifications routes placed before /:id routes to avoid "notifications" matching as invalid ObjectId
 
 **Tests**: 131 server tests passing (19 auth + 22 category + 34 transaction + 20 analytics + 35 budget + 1 health), 1 client test passing
+
+### Phase 5 — Recurring Transactions
+- **RecurringRule model**: frequency (daily/weekly/monthly/yearly), startDate, endDate, anchorDay (day of month), nextRunAt, active flag
+- **Recurring service**: CRUD operations, processDueRules with catch-up logic using nextOccurrence and getDueOccurrences utilities, processRuleNow for manual trigger
+- **Recurring routes**: POST /recurring, GET /recurring?activeOnly, GET /recurring/:id, PATCH /recurring/:id, DELETE /recurring/:id, POST /recurring/process, POST /recurring/:id/process with full Zod validation
+- **Cron job**: node-cron runs processDueRules every 15 minutes; startup catch-up runs on server start to handle missed occurrences during downtime
+- **Date utilities**: nextOccurrence handles clamping for month-end dates (Jan 31 -> Feb 28/29, Mar 31); getDueOccurrences generates all overdue occurrences for catch-up; both use Luxon with Asia/Kolkata timezone
+- **Deduplication**: fingerprint-based (SHA1 of userId, categoryId, type, amount, date, note) prevents duplicate transaction creation
+- **Integration**: category/type validation on create/update; ownership checks; category reassign-on-delete propagates to recurring rules
+- **Fixed monthly clamping**: uses Luxon's daysInMonth property for correct target month day count
+- **Fixed dateOnlySchema**: accepts YYYY-MM-DD format for startDate/endDate (not full ISO datetime)
+- **Fixed query param coercion**: activeOnly uses z.coerce.boolean()
+
+**Tests**: 154 server tests passing (19 auth + 22 category + 34 transaction + 20 analytics + 35 budget + 23 recurring + 1 health), 1 client test passing
 
 ## Decisions
 - Money stored as integer minor units (cents/paise), converted only at UI edge

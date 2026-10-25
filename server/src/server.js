@@ -2,6 +2,7 @@ import { createApp } from './app.js';
 import { connectDB } from './config/db.js';
 import { getEnv } from './config/env.js';
 import { getLogger } from './config/logger.js';
+import { startRecurringCron, runStartupCatchUp } from './jobs/recurring.jobs.js';
 
 const { PORT, NODE_ENV } = getEnv();
 const logger = getLogger();
@@ -11,6 +12,12 @@ async function start() {
     await connectDB();
 
     const app = createApp();
+
+    // Start recurring rules cron job
+    startRecurringCron();
+
+    // Run startup catch-up for recurring rules
+    await runStartupCatchUp();
 
     // Serve static files in production
     if (NODE_ENV === 'production') {

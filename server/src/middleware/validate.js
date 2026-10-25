@@ -24,4 +24,5 @@ export const objectIdSchema = z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid ID 
 export const idParamSchema = z.object({ id: objectIdSchema });
 export const monthSchema = z.string().regex(/^\d{4}-\d{2}$/, 'Month must be YYYY-MM');
 export const dateSchema = z.string().datetime({ offset: true }).transform(s => new Date(s));
+export const dateOnlySchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be YYYY-MM-DD').transform(s => new Date(s + 'T00:00:00.000Z'));
 export const amountSchema = z.coerce.number().int().min(1).max(100_000_000_000);

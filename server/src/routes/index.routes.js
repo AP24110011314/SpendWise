@@ -5,6 +5,7 @@ import categoryRoutes from './category.routes.js';
 import transactionRoutes from './transaction.routes.js';
 import analyticsRoutes from './analytics.routes.js';
 import budgetRoutes from './budget.routes.js';
+import recurringRoutes from './recurring.routes.js';
 
 const router = Router();
 
@@ -14,5 +15,6 @@ router.use('/categories', categoryRoutes);
 router.use('/transactions', transactionRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/budgets', budgetRoutes);
+router.use('/recurring', recurringRoutes);
 
 export default router;

@@ -102,3 +102,95 @@ export function startOfDay(date, tz = 'Asia/Kolkata') {
 export function endOfDay(date, tz = 'Asia/Kolkata') {
   return DateTime.fromJSDate(date, { zone: tz }).endOf('day').toUTC().toJSDate();
 }
+
+/**
+ * Calculate the next occurrence date for a recurring rule.
+ * Handles clamping for month-end dates (e.g., Jan 31 -> Feb 28/29, Mar 31).
+ * @param {Object} rule - Recurring rule object with frequency, startDate, anchorDay
+ * @param {Date} [fromDate] - Date to calculate from (defaults to rule.nextRunAt or rule.startDate)
+ * @param {string} [tz='Asia/Kolkata'] - IANA timezone string
+ * @returns {Date|null} - Next occurrence date in UTC, or null if past endDate
+ */
+export function nextOccurrence(rule, fromDate = null, tz = 'Asia/Kolkata') {
+  const baseDate = fromDate || rule.nextRunAt || rule.startDate;
+  if (!baseDate) return null;
+
+  const dt = DateTime.fromJSDate(baseDate, { zone: tz });
+  let nextDt;
+
+  switch (rule.frequency) {
+    case 'daily':
+      nextDt = dt.plus({ days: 1 });
+      break;
+    case 'weekly':
+      nextDt = dt.plus({ weeks: 1 });
+      break;
+    case 'monthly': {
+      // Use anchorDay for monthly recurrence, clamp to month end
+      const year = dt.year;
+      const month = dt.month;
+      // Target month is next month (month + 1, with 13 wrapping to 1 next year)
+      let targetYear = year;
+      let targetMonth = month + 1;
+      if (targetMonth > 12) {
+        targetMonth = 1;
+        targetYear += 1;
+      }
+      // Get days in target month using Luxon's daysInMonth
+      const daysInTargetMonth = DateTime.fromObject({ year: targetYear, month: targetMonth }, { zone: tz }).daysInMonth;
+      const clampedDay = Math.min(rule.anchorDay, daysInTargetMonth);
+      nextDt = DateTime.fromObject({ year: targetYear, month: targetMonth, day: clampedDay }, { zone: tz });
+      break;
+    }
+    case 'yearly': {
+      const year = dt.year;
+      const targetYear = year + 1;
+      // For yearly, target month is the same month next year
+      const targetMonth = dt.month;
+      // Get days in target month (handles Feb 29 in leap years)
+      const daysInTargetMonth = DateTime.fromObject({ year: targetYear, month: targetMonth }, { zone: tz }).daysInMonth;
+      const clampedDay = Math.min(rule.anchorDay, daysInTargetMonth);
+      nextDt = DateTime.fromObject({ year: targetYear, month: targetMonth, day: clampedDay }, { zone: tz });
+      break;
+    }
+    default:
+      return null;
+  }
+
+  // Check if next occurrence is past endDate
+  if (rule.endDate) {
+    const endDt = DateTime.fromJSDate(rule.endDate, { zone: tz }).startOf('day');
+    if (nextDt > endDt) return null;
+  }
+
+  return nextDt.toUTC().toJSDate();
+}
+
+/**
+ * Generate all due occurrences for a rule up to a given date.
+ * Used for catch-up when a rule has been paused or server was down.
+ * @param {Object} rule - Recurring rule object
+ * @param {Date} until - Calculate occurrences until this date (inclusive)
+ * @param {string} [tz='Asia/Kolkata'] - IANA timezone string
+ * @returns {Date[]} - Array of occurrence dates in UTC
+ */
+export function getDueOccurrences(rule, until, tz = 'Asia/Kolkata') {
+  const occurrences = [];
+  let current = rule.nextRunAt || rule.startDate;
+  if (!current) return occurrences;
+
+  const untilDt = DateTime.fromJSDate(until, { zone: tz }).startOf('day');
+
+  while (current) {
+    const currentDt = DateTime.fromJSDate(current, { zone: tz }).startOf('day');
+    if (currentDt > untilDt) break;
+
+    occurrences.push(current);
+
+    const next = nextOccurrence(rule, current, tz);
+    if (!next) break;
+    current = next;
+  }
+
+  return occurrences;
+}
