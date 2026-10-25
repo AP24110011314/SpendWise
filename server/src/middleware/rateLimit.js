@@ -1,39 +1,31 @@
 import rateLimit from 'express-rate-limit';
 import { getEnv } from '../config/env.js';
 
-function createRateLimiters() {
+// Dynamic limit functions to support test mode without calling getEnv at module load
+function getAuthLimit() {
   const { NODE_ENV } = getEnv();
-  const isTest = NODE_ENV === 'test';
-
-  return {
-    authRateLimit: rateLimit({
-      windowMs: 15 * 60 * 1000, // 15 minutes
-      limit: isTest ? 1000 : 10,
-      message: { error: { code: 'RATE_LIMITED', message: 'Too many requests, please try again later' } },
-      standardHeaders: true,
-      legacyHeaders: false,
-      keyGenerator: (req) => req.ip,
-    }),
-    apiRateLimit: rateLimit({
-      windowMs: 60 * 1000, // 1 minute
-      limit: isTest ? 10000 : 200,
-      message: { error: { code: 'RATE_LIMITED', message: 'Too many requests, please try again later' } },
-      standardHeaders: true,
-      legacyHeaders: false,
-      keyGenerator: (req) => req.ip,
-    }),
-  };
+  return NODE_ENV === 'test' ? 1000 : 10;
 }
 
-// Lazy getters to avoid calling getEnv() at module load time
-let _rateLimiters;
-
-function getRateLimiters() {
-  if (!_rateLimiters) {
-    _rateLimiters = createRateLimiters();
-  }
-  return _rateLimiters;
+function getApiLimit() {
+  const { NODE_ENV } = getEnv();
+  return NODE_ENV === 'test' ? 10000 : 200;
 }
 
-export const authRateLimit = (req, res, next) => getRateLimiters().authRateLimit(req, res, next);
-export const apiRateLimit = (req, res, next) => getRateLimiters().apiRateLimit(req, res, next);
+export const authRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: getAuthLimit,
+  message: { error: { code: 'RATE_LIMITED', message: 'Too many requests, please try again later' } },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.ip,
+});
+
+export const apiRateLimit = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  limit: getApiLimit,
+  message: { error: { code: 'RATE_LIMITED', message: 'Too many requests, please try again later' } },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.ip,
+});

@@ -7,7 +7,7 @@ Claude Code: update this file at the end of every phase. Keep entries short and 
 |---|---|---|---|
 | 0 | Scaffold | ✅ | |
 | 1 | Auth & Categories | ✅ | |
-| 2 | Transactions | ☐ | |
+| 2 | Transactions | ✅ | |
 | 3 | Analytics & Dashboard | ☐ | |
 | 4 | Budgets & Notifications | ☐ | |
 | 5 | Recurring Transactions | ☐ | |
@@ -41,6 +41,17 @@ Claude Code: update this file at the end of every phase. Keep entries short and 
 - Fixed validate middleware usage in category routes (params validation)
 
 **Tests**: 42 server tests passing (19 auth + 22 category + 1 health), 1 client test passing
+
+### Phase 2 — Transactions
+- **Transaction service**: CRUD operations, list with filters (type, category, date range, amount range, search), pagination, sorting, bulk delete, fingerprint-based deduplication
+- **Transaction routes**: POST /, GET / (with query filters), GET /:id, PATCH /:id, DELETE /:id, POST /bulk-delete with full Zod validation
+- **Category/type consistency validation**: transactions can only use categories of matching type
+- **Ownership checks**: all queries scoped by userId; users cannot access other users' transactions
+- **Fingerprint deduplication**: SHA1-based fingerprint prevents duplicate transactions (same date, type, amount, note)
+- Fixed auth middleware to set req.userId for service layer
+- Fixed amountSchema to use z.coerce.number() for query parameter parsing
+
+**Tests**: 76 server tests passing (19 auth + 22 category + 34 transaction + 1 health), 1 client test passing
 
 ## Decisions
 - Money stored as integer minor units (cents/paise), converted only at UI edge

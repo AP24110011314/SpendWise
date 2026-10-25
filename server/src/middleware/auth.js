@@ -18,6 +18,7 @@ export async function authMiddleware(req, res, next) {
       return next(ApiError.unauthorized());
     }
     req.user = user;
+    req.userId = user._id.toString();
     next();
   } catch (err) {
     if (err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError') {
