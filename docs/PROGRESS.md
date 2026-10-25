@@ -13,7 +13,7 @@ Claude Code: update this file at the end of every phase. Keep entries short and 
 | 5 | Recurring Transactions | ✅ | |
 | 6 | CSV Import / Export | ✅ | |
 | 7 | Forecast & Comparison | ✅ | |
-| 8 | Seed, Polish, Production | ☐ | |
+| 8 | Seed, Polish, Production | ✅ | |
 
 ## Phase notes
 ### Phase 0 — Scaffold
@@ -129,5 +129,19 @@ Claude Code: update this file at the end of every phase. Keep entries short and 
 - No multi-document transactions; use unique indexes and idempotent operations
 - All queries scoped by userId; ownership verified in services/controllers
 
+### Phase 8 — Seed, Polish, Production
+- **Seed script**: Created `server/src/scripts/seed.js` with demo user, ~6 months of transactions, 5 recurring rules (rent, utilities, subscriptions, weekly groceries, yearly insurance), budgets for all categories + overall budget, Entertainment category over budget
+- **Dashboard with real data**: Updated Dashboard to use TanStack Query hooks fetching from analytics endpoints (summary, by-category, trend, daily, forecast)
+- **Charts**: Implemented PieChart (category breakdown), BarChart (income vs expenses trend), AreaChart (daily cumulative spend), Budget progress bars, Forecast cards with confidence indicators
+- **Loading/Empty/Error states**: Dashboard shows skeleton loaders while fetching, EmptyState for no data, ErrorState with retry button
+- **Production serving**: Updated `server/src/server.js` to serve `client/dist` static files in production with SPA fallback
+- **Accessibility**: Added ARIA roles (role="status", role="alert", role="progressbar"), proper labels, semantic HTML
+- **Dark mode**: Works via Tailwind's `dark:` class (uses `class` strategy in tailwind.config.js)
+
+**Tests**: 182 server tests passing, 1 client test passing
+**Lint**: Clean (0 errors, warnings only)
+**Build**: Client builds successfully
+
 ## Known issues / follow-ups
-- Minor ESLint warnings about unused `afterEach` in test files (non-blocking)
+- Minor ESLint warnings about unused variables in test files and some source files (non-blocking)
+- Client bundle size warning (>500KB) - could be improved with code splitting

@@ -3,9 +3,18 @@ import { connectDB } from './config/db.js';
 import { getEnv } from './config/env.js';
 import { getLogger } from './config/logger.js';
 import { startRecurringCron, runStartupCatchUp } from './jobs/recurring.jobs.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import express from 'express';
 
 const { PORT, NODE_ENV } = getEnv();
 const logger = getLogger();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+// server/src -> project root is ../../
+const projectRoot = path.resolve(__dirname, '..', '..');
+const clientDistPath = path.join(projectRoot, 'client', 'dist');
 
 async function start() {
   try {
@@ -21,13 +30,11 @@ async function start() {
 
     // Serve static files in production
     if (NODE_ENV === 'production') {
-      import('express').then(({ default: express }) => {
-        app.use(express.static('client/dist'));
-        app.get('*', (req, res) => {
-          if (!req.path.startsWith('/api')) {
-            res.sendFile('index.html', { root: 'client/dist' });
-          }
-        });
+      app.use(express.static(clientDistPath));
+      app.get('*', (req, res) => {
+        if (!req.path.startsWith('/api')) {
+          res.sendFile('index.html', { root: clientDistPath });
+        }
       });
     }
 
