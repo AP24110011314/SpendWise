@@ -10,6 +10,7 @@ export async function setup() {
   process.env.CLIENT_ORIGIN = 'http://localhost:5173';
   process.env.COOKIE_NAME = 'sw_token';
   process.env.ENABLE_CRON = 'false';
+  process.env.NODE_ENV = 'test';
 }
 
 export async function teardown() {

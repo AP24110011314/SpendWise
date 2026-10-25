@@ -11,8 +11,8 @@ export class ApiError extends Error {
     return new ApiError(400, 'VALIDATION_ERROR', message, details);
   }
 
-  static unauthorized(message = 'Unauthenticated') {
-    return new ApiError(401, 'UNAUTHENTICATED', message);
+  static unauthorized(message = 'Unauthorized') {
+    return new ApiError(401, 'UNAUTHORIZED', message);
   }
 
   static forbidden(message = 'Forbidden') {

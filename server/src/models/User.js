@@ -11,8 +11,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.index({ email: 1 }, { unique: true });
-
 // Validate timezone using Intl.DateTimeFormat
 userSchema.path('timezone').validate(function (value) {
   try {
