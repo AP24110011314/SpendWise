@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -22,8 +22,15 @@ const schema = z.object({
 
 export default function Register() {
   const navigate = useNavigate();
-  const { register: registerUser } = useAuth();
+  const { register: registerUser, user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate('/', { replace: true });
+    }
+  }, [user, authLoading, navigate]);
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
@@ -36,11 +43,17 @@ export default function Register() {
       toast.success('Account created!');
       navigate('/', { replace: true });
     } catch (err) {
-      toast.error(err.message || 'Registration failed');
+      const message = err?.message || err?.response?.data?.error?.message || 'Registration failed';
+      toast.error(message);
     } finally {
       setLoading(false);
     }
   };
+
+  // Don't render form if redirecting
+  if (authLoading || user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-12">

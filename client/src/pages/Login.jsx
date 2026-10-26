@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -18,10 +18,17 @@ const schema = z.object({
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { login, user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const from = location.state?.from?.pathname || '/';
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate(from, { replace: true });
+    }
+  }, [user, authLoading, navigate, from]);
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
@@ -34,11 +41,17 @@ export default function Login() {
       toast.success('Welcome back!');
       navigate(from, { replace: true });
     } catch (err) {
-      toast.error(err.message || 'Invalid credentials');
+      const message = err?.message || err?.response?.data?.error?.message || 'Invalid credentials';
+      toast.error(message);
     } finally {
       setLoading(false);
     }
   };
+
+  // Don't render form if redirecting
+  if (authLoading || user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
@@ -52,7 +65,7 @@ export default function Login() {
         </div>
 
         <div className="card p-8">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form data-testid="login-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Input
               label="Email"
               type="email"

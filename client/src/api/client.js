@@ -1,11 +1,26 @@
 import axios from 'axios';
 
+const TOKEN_KEY = 'sw_access_token';
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE || '/api',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
+});
+
+// Add token from localStorage to requests
+api.interceptors.request.use((config) => {
+  try {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch {
+    // Ignore localStorage errors
+  }
+  return config;
 });
 
 api.interceptors.response.use(

@@ -3,9 +3,23 @@ import { getEnv } from '../config/env.js';
 import { User } from '../models/User.js';
 import { ApiError } from '../utils/ApiError.js';
 
+function extractToken(req) {
+  const { COOKIE_NAME } = getEnv();
+  // Check cookie first
+  let token = req.cookies?.[COOKIE_NAME];
+  // Fallback to Authorization header
+  if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader?.startsWith('Bearer ')) {
+      token = authHeader.slice(7);
+    }
+  }
+  return token;
+}
+
 export async function authMiddleware(req, res, next) {
-  const { COOKIE_NAME, JWT_SECRET } = getEnv();
-  const token = req.cookies?.[COOKIE_NAME];
+  const { JWT_SECRET } = getEnv();
+  const token = extractToken(req);
 
   if (!token) {
     return next(ApiError.unauthorized());
@@ -29,8 +43,8 @@ export async function authMiddleware(req, res, next) {
 }
 
 export function optionalAuth(req, res, next) {
-  const { COOKIE_NAME, JWT_SECRET } = getEnv();
-  const token = req.cookies?.[COOKIE_NAME];
+  const { JWT_SECRET } = getEnv();
+  const token = extractToken(req);
 
   if (!token) {
     return next();
