@@ -59,7 +59,8 @@ export default function Login() {
               placeholder="you@example.com"
               error={errors.email?.message}
               {...register('email')}
-              autoComplete="email"
+              autoComplete="username"
+              name="email"
             />
 
             <Input
@@ -69,6 +70,7 @@ export default function Login() {
               error={errors.password?.message}
               {...register('password')}
               autoComplete="current-password"
+              name="password"
             />
 
             <Button type="submit" className="w-full" loading={loading}>

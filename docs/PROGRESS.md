@@ -147,11 +147,18 @@ Claude Code: update this file at the end of every phase. Keep entries short and 
 - Client bundle size warning (>500KB) - could be improved with code splitting
 
 ### Phase 8+ — Auth Flow Fix (2026-10-26)
-- **Root cause**: macOS ControlCenter occupies port 5000 by default (AirPlay receiver). The server was configured for PORT=5000 in `.env`, and the Vite proxy targeted `http://localhost:5000`. When the server started, it failed to bind to port 5000 silently (or exited), leaving the Vite proxy forwarding requests to a non-server process (ControlCenter), which returned 403/500 responses. The demo user also wasn't seeded initially, so login returned 401 "Invalid credentials".
+- **Root cause**: Vite was silently falling back from port 5173 to 5174 when 5173 was in use (no `strictPort: true`). The server CORS config only allowed a single origin from `CLIENT_ORIGIN` and would throw a 500 error when receiving requests from an unallowed origin (like `http://localhost:5174`), instead of gracefully handling it. The demo password `Demo@1234` was weak and appeared in public breach lists, triggering Chrome's "password found in a data breach" warning.
 - **Fix**:
-  1. Changed server PORT from 5000 to 5001 in `server/.env` to avoid macOS port conflict
-  2. Updated `client/vite.config.js` proxy target to `http://localhost:5001`
-  3. Ran `npm run seed` to create demo user `demo@spendwise.app` with password `demo12345`
-  4. Verified `/api/auth/me` returns 401 without cookie, login returns 200 with httpOnly cookie, and `/api/auth/me` with cookie returns user
-  5. Fixed React Router v6 future-flag warnings by adding `future={{ v7_startTransition: true, v7_relativeSplatPath: true }}` to `BrowserRouter` in `client/src/main.jsx` and test file
-- **Verification**: All 182 server tests pass, 1 client test passes, lint clean (0 errors), browser flow works: login → dashboard → refresh (stay logged in) → logout
+  1. Added `strictPort: true` to `client/vite.config.js` so Vite fails with a clear message instead of silently moving to another port
+  2. Updated `server/src/app.js` CORS config to:
+     - Accept comma-separated list of origins from `CLIENT_ORIGIN`
+     - In development, always also allow `http://localhost:5173`, `http://localhost:5174`, `http://127.0.0.1:5173`, `http://127.0.0.1:5174`
+     - Allow requests with no Origin header
+     - Disallowed origins respond without CORS headers (or 403 with standard error envelope), never pass an Error to next()
+  3. Updated `server/.env.example`, `docs/ARCHITECTURE.md`, `docs/SETUP.md` with `CLIENT_ORIGIN=http://localhost:5173,http://localhost:5174`
+  4. Added troubleshooting line to SETUP.md: "Port 5173 in use → stop the old dev server (lsof -i :5173) instead of using another port"
+  5. Changed seeded demo password to a strong unique password `Sw!Demo-7rK2#vQ9xLm` in `server/src/scripts/seed.js`, README.md, docs/PROGRESS.md, docs/SETUP.md
+  6. Added proper autocomplete attributes: login form email `autoComplete="username"`, password `autoComplete="current-password"`; register form email `autoComplete="username"`, password `autoComplete="new-password"`; added `name` attributes to all fields
+  7. Added note in README.md that Chrome's breach warning is Chrome's feature, not an app error
+  8. Added tests: login success sets httpOnly cookie; wrong password returns 401; /auth/me without cookie returns 401; request from Origin http://localhost:5174 does not return 500 in development
+- **Verification**: All 185 server tests + 1 client test pass, lint clean (0 errors), browser flow works: login at http://localhost:5173 → dashboard loads → refresh (stay logged in) → logout

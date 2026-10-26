@@ -11,7 +11,7 @@ import { generateFingerprint } from '../utils/fingerprint.js';
 import { currentMonth, shiftMonth, monthRange, daysInMonth } from '../utils/dates.js';
 
 const DEMO_EMAIL = 'demo@spendwise.app';
-const DEMO_PASSWORD = 'demo12345';
+const DEMO_PASSWORD = 'Sw!Demo-7rK2#vQ9xLm';
 const DEMO_NAME = 'Demo User';
 const TZ = 'Asia/Kolkata';
 

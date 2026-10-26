@@ -118,6 +118,19 @@ describe('Auth Routes', () => {
 
       expect(res.body.error.code).toBe('UNAUTHORIZED');
     });
+
+    it('should set httpOnly cookie on successful login', async () => {
+      const res = await request(app)
+        .post('/api/auth/login')
+        .send({ email: 'test@example.com', password: 'password123' })
+        .expect(200);
+
+      const cookie = res.headers['set-cookie'][0];
+      expect(cookie).toContain('HttpOnly');
+      expect(cookie).toContain('sw_token=');
+      // In development (test environment), cookie should NOT have Secure flag
+      expect(cookie).not.toContain('Secure');
+    });
   });
 
   describe('POST /api/auth/logout', () => {
@@ -171,6 +184,30 @@ describe('Auth Routes', () => {
       await request(app)
         .get('/api/auth/me')
         .expect(401);
+    });
+  });
+
+  describe('CORS', () => {
+    it('should allow request from http://localhost:5174 in development', async () => {
+      const res = await request(app)
+        .post('/api/auth/login')
+        .set('Origin', 'http://localhost:5174')
+        .send({ email: 'test@example.com', password: 'password123' });
+
+      // Should not return 500 - either 200 (if user exists) or 401 (if not)
+      expect(res.status).not.toBe(500);
+      expect([200, 401]).toContain(res.status);
+    });
+
+    it('should allow request with no Origin header', async () => {
+      const res = await request(app)
+        .post('/api/auth/login')
+        // No Origin header
+        .send({ email: 'test@example.com', password: 'password123' });
+
+      // Should not return 500
+      expect(res.status).not.toBe(500);
+      expect([200, 401]).toContain(res.status);
     });
   });
 

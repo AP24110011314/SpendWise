@@ -54,7 +54,7 @@ spendwise/
 `server/.env.example`
 ```
 NODE_ENV=development
-PORT=5000
+PORT=5001
 MONGODB_URI=mongodb://127.0.0.1:27017/spendwise
 JWT_SECRET=change-me-to-a-long-random-string
 JWT_EXPIRES_IN=7d
@@ -84,7 +84,7 @@ VITE_API_BASE=/api
 Server scripts: `dev` = `node --watch src/server.js`, `start` = `node src/server.js`, `test` = `vitest run`, `seed` = `node src/scripts/seed.js`.
 
 ## 5. Dev and production serving
-- Dev: Vite on 5173 with `server.proxy: { '/api': 'http://localhost:5000' }`. Cookies work because the browser sees one origin.
+- Dev: Vite on 5173 with `server.proxy: { '/api': 'http://localhost:5001' }`. Cookies work because the browser sees one origin.
 - Production: when `NODE_ENV=production`, `app.js` serves `client/dist` with `express.static` and falls back to `index.html` for non-`/api` GET routes. Run with `npm run build && npm start`. For hosting, any Node host works (Render, Railway, a VPS with pm2) with `MONGODB_URI` pointing to Atlas. Do not add container files.
 
 ## 6. Security middleware order (app.js)

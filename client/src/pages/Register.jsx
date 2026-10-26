@@ -62,6 +62,7 @@ export default function Register() {
               error={errors.name?.message}
               {...register('name')}
               autoComplete="name"
+              name="name"
             />
 
             <Input
@@ -70,7 +71,8 @@ export default function Register() {
               placeholder="you@example.com"
               error={errors.email?.message}
               {...register('email')}
-              autoComplete="email"
+              autoComplete="username"
+              name="email"
             />
 
             <Input
@@ -80,6 +82,7 @@ export default function Register() {
               error={errors.password?.message}
               {...register('password')}
               autoComplete="new-password"
+              name="password"
             />
 
             <Input
@@ -89,6 +92,7 @@ export default function Register() {
               error={errors.confirmPassword?.message}
               {...register('confirmPassword')}
               autoComplete="new-password"
+              name="confirmPassword"
             />
 
             <Button type="submit" className="w-full" loading={loading}>

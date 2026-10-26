@@ -45,7 +45,7 @@ Work phase by phase. Do not start a phase until the previous phase's acceptance 
 
 ## Final verification checklist
 1. Fresh clone → `npm install` → copy env files → `npm run seed` → `npm run dev` works with only Node and MongoDB.
-2. `npm test`, `npm run lint`, `npm run build && npm start` all succeed; app served from `http://localhost:5000`.
+2. `npm test`, `npm run lint`, `npm run build && npm start` all succeed; app served from `http://localhost:5001`.
 3. Login as demo user: dashboard shows all cards and four charts with non-empty data; forecast card shows a projection with a confidence label.
 4. Add an expense that pushes a category past 80% → bell shows a warning; push past 100% → exceeded; adding more does not duplicate alerts.
 5. Create a monthly recurring rule with a past start date → click "Run due now" → transactions appear marked recurring; click again → no new rows.

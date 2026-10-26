@@ -10,6 +10,7 @@ SpendWise is a personal finance tracker: income and expenses, categories, recurr
 5. **In aggregation pipelines, cast `userId` and other ids to `mongoose.Types.ObjectId`** — Mongoose does not auto-cast inside `aggregate()`.
 6. **No secrets in git.** Only `.env.example` files are committed.
 7. **No placeholder code.** No empty handlers, fake data in real paths, or `// TODO` left behind.
+8. **API port is 5001** (port 5000 is occupied on the developer's machine). Use `PORT=5001` in `server/.env`, proxy `/api` to `http://localhost:5001`, and never hard-code 5000. Client dev port is 5173.
 
 ## Stack
 - Server: Node 20+, Express 4, Mongoose 8, zod, jsonwebtoken, bcryptjs, helmet, cors, express-rate-limit, cookie-parser, multer, csv-parse, fast-csv (or csv-stringify), node-cron, luxon, pino (+ pino-http)
@@ -30,7 +31,7 @@ Full tree is in `docs/ARCHITECTURE.md`.
 
 ## Commands
 ```
-npm run dev        # API (:5000) + client (:5173) together
+npm run dev        # API (:5001) + client (:5173) together
 npm run dev:server / npm run dev:client
 npm test           # all tests
 npm run lint

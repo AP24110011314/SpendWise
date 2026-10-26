@@ -14,7 +14,7 @@ cp client/.env.example client/.env
 # edit server/.env: set MONGODB_URI and a long random JWT_SECRET
 #   node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 npm run seed                     # demo user: demo@spendwise.app / Demo@1234
-npm run dev                      # API http://localhost:5000, web http://localhost:5173
+npm run dev                      # API http://localhost:5001, web http://localhost:5173
 ```
 
 ## Everyday commands
@@ -34,6 +34,6 @@ npm run dev                      # API http://localhost:5000, web http://localho
 
 ## Troubleshooting
 - `MongooseServerSelectionError`: MongoDB isn't running or the URI/IP allow-list is wrong.
-- Cookie not set in dev: use the Vite URL (`localhost:5173`) so requests go through the proxy; don't call `:5000` directly from the browser.
+- Cookie not set in dev: use the Vite URL (`localhost:5173`) so requests go through the proxy; don't call `:5001` directly from the browser.
 - `mongodb-memory-server` first run downloads a mongod binary (needs internet once); it is cached afterwards.
 - Port in use: change `PORT` in `server/.env` and the Vite proxy target.

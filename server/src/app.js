@@ -12,7 +12,7 @@ import { apiRateLimit } from './middleware/rateLimit.js';
 
 export function createApp() {
   const app = express();
-  const { CLIENT_ORIGIN } = getEnv();
+  const { CLIENT_ORIGIN, NODE_ENV } = getEnv();
   const logger = getLogger();
 
   // Trust proxy for rate limiting behind reverse proxy
@@ -23,7 +23,37 @@ export function createApp() {
 
   // Security
   app.use(helmet());
-  app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
+
+  // CORS configuration
+  const isDevelopment = NODE_ENV !== 'production';
+  const clientOrigins = CLIENT_ORIGIN.split(',').map(o => o.trim()).filter(Boolean);
+  const devOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5174',
+  ];
+  const allowedOrigins = isDevelopment
+    ? [...new Set([...clientOrigins, ...devOrigins])]
+    : clientOrigins;
+
+  const corsOptions = {
+    origin: (origin, callback) => {
+      // Allow requests with no Origin header (e.g., server-to-server, curl, Postman)
+      if (!origin) {
+        return callback(null, true);
+      }
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      // Disallowed origin: respond without CORS headers (or 403 with standard error envelope)
+      // Never pass an Error to next()
+      return callback(null, false);
+    },
+    credentials: true,
+  };
+
+  app.use(cors(corsOptions));
 
   // Body parsing
   app.use(express.json({ limit: '100kb' }));
