@@ -1,37 +1,73 @@
 # Dependencies
 node_modules/
+
+# Documentation & Markdown files (ignore docs and all .md except README.md)
 docs/
+*.md
+**/*.md
+!README.md
+!**/README.md
+
 # Environment files
 .env
 .env.local
 .env.*.local
+*.env
 server/.env
 client/.env
+!.env.example
+!client/.env.example
+!server/.env.example
 
-# Build outputs
+# Build & Bundler outputs
 dist/
 client/dist/
 server/dist/
+build/
+.output/
 
-# Coverage
+# Cache directories
+.cache/
+.vite/
+*.tsbuildinfo
+
+# Coverage & Testing
 coverage/
+.nyc_output/
 
-# IDE
+# IDE & Editor files
 .idea/
 .vscode/
 *.swp
 *.swo
+*.sublime-project
+*.sublime-workspace
 
-# OS
+# Operating System files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 Thumbs.db
+ehthumbs.db
+desktop.ini
 
 # Logs
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# Testing
-.nyc_output/
+# Scratch & Debug files
+server/debug_recurring.js
+scratch/
+*.tmp
+*.temp
 
-# Misc
-*.tsbuildinfo
+# Archives
+*.zip
+*.tar.gz
+*.tgz
+*.rar
