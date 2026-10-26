@@ -59,7 +59,7 @@ cp client/.env.example client/.env
 Open `server/.env` and update at minimum:
 
 ```env
-PORT=5000
+PORT=5001
 MONGODB_URI=mongodb://127.0.0.1:27017/spendwise
 JWT_SECRET=<paste-a-secure-random-string-here>
 ```
@@ -110,7 +110,7 @@ This starts both servers concurrently:
 
 | Server | URL |
 |--------|-----|
-| API (Express) | http://localhost:5000 |
+| API (Express) | http://localhost:5001 |
 | Client (Vite) | http://localhost:5173 |
 
 Open **http://localhost:5173** in your browser.
@@ -139,7 +139,7 @@ Open **http://localhost:5173** in your browser.
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `NODE_ENV` | Environment | `development` |
-| `PORT` | API port | `5000` |
+| `PORT` | API port | `5001` |
 | `MONGODB_URI` | MongoDB connection string | `mongodb://127.0.0.1:27017/spendwise` |
 | `JWT_SECRET` | Secret for JWT signing (min 32 chars) | **Required** |
 | `JWT_EXPIRES_IN` | Token expiry | `7d` |
@@ -178,12 +178,12 @@ The production server serves both the API and the built React app on a single po
 
 ### `ECONNREFUSED` — API proxy errors in the browser
 
-The Vite dev server proxies `/api/*` requests to the Express API on port **5000**. If you see proxy errors:
+The Vite dev server proxies `/api/*` requests to the Express API on port **5001**. If you see proxy errors:
 
 1. Confirm the API server is running: `npm run dev:server`
 2. Confirm MongoDB is running (see Step 4 above)
-3. Verify `server/.env` has `PORT=5000`
-4. Verify `client/vite.config.js` proxy target is `http://localhost:5000`
+3. Verify `server/.env` has `PORT=5001`
+4. Verify `client/vite.config.js` proxy target is `http://localhost:5001`
 
 A few proxy errors on startup are normal — they stop once Express finishes booting.
 

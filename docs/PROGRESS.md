@@ -162,3 +162,26 @@ Claude Code: update this file at the end of every phase. Keep entries short and 
   7. Added note in README.md that Chrome's breach warning is Chrome's feature, not an app error
   8. Added tests: login success sets httpOnly cookie; wrong password returns 401; /auth/me without cookie returns 401; request from Origin http://localhost:5174 does not return 500 in development
 - **Verification**: All 185 server tests + 1 client test pass, lint clean (0 errors), browser flow works: login at http://localhost:5173 → dashboard loads → refresh (stay logged in) → logout
+
+### Phase 8++ — API Port Migration (2026-10-26)
+- **Reason**: Port 5000 occupied on developer machine (macOS ControlCenter/AirPlay)
+- **Changes**:
+  1. Updated `server/.env.example` PORT from 5000 to 5001
+  2. Updated `server/.env` PORT to 5001
+  3. Updated `server/src/config/env.js` default PORT from 5000 to 5001
+  4. Updated `client/vite.config.js` proxy target from `http://localhost:5000` to `http://localhost:5001`
+  5. Updated README.md: PORT default, server URLs, troubleshooting section
+  6. Updated `docs/ARCHITECTURE.md` already had 5001
+  7. Updated `docs/SETUP.md` already had 5001
+  8. Updated `docs/IMPLEMENTATION_PLAN.md` final checklist already had 5001
+- **Verification**: 
+  - `curl http://localhost:5001/api/health` → 200 {"status":"ok"} ✅
+  - `curl http://localhost:5173/api/health` (via Vite proxy) → 200 ✅
+  - `curl http://localhost:5173/api/auth/me` (no cookie) → 401 ✅
+  - Login via proxy → 200 with httpOnly cookie ✅
+  - `curl http://localhost:5173/api/auth/me` (with cookie) → 200 user ✅
+  - `curl http://localhost:5173/api/analytics/summary` → 200 ✅
+  - `curl http://localhost:5173/api/budgets/progress` → 200 ✅
+  - `npm test` → 186 tests pass ✅
+  - `npm run lint` → 0 errors ✅
+  - `npm run build && npm start` → production server on 5001 serves API ✅
