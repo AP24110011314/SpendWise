@@ -31,8 +31,9 @@ export function AuthProvider({ children }) {
 
   const fetchUser = useCallback(async () => {
     try {
-      const data = await authApi.me();
-      setUser(data);
+      const res = await authApi.me();
+      const userData = res?.user || res?.data?.user || res;
+      setUser(userData);
     } catch {
       setUser(null);
       setStoredToken(null);
@@ -53,17 +54,21 @@ export function AuthProvider({ children }) {
   }, [fetchUser]);
 
   const login = async (email, password) => {
-    const data = await authApi.login(email, password);
-    setUser(data.user);
-    setStoredToken(data.accessToken);
-    return data;
+    const res = await authApi.login(email, password);
+    const payload = res?.data || res;
+    const userData = payload?.user || payload;
+    setUser(userData);
+    setStoredToken(payload?.accessToken);
+    return payload;
   };
 
   const register = async (name, email, password) => {
-    const data = await authApi.register(name, email, password);
-    setUser(data.user);
-    setStoredToken(data.accessToken);
-    return data;
+    const res = await authApi.register(name, email, password);
+    const payload = res?.data || res;
+    const userData = payload?.user || payload;
+    setUser(userData);
+    setStoredToken(payload?.accessToken);
+    return payload;
   };
 
   const logout = async () => {
@@ -72,8 +77,21 @@ export function AuthProvider({ children }) {
     setStoredToken(null);
   };
 
-  const updateUser = (updates) => {
-    setUser(prev => ({ ...prev, ...updates }));
+  const updateUser = async (updates) => {
+    try {
+      const res = await authApi.updateMe(updates);
+      const userData = res?.user || res?.data?.user || res;
+      setUser(userData);
+      return userData;
+    } catch (err) {
+      // Revert optimistic update on error
+      setUser(prev => ({ ...prev }));
+      throw err;
+    }
+  };
+
+  const changePassword = async (currentPassword, newPassword) => {
+    return authApi.changePassword(currentPassword, newPassword);
   };
 
   const value = {
@@ -83,6 +101,7 @@ export function AuthProvider({ children }) {
     register,
     logout,
     updateUser,
+    changePassword,
     isAuthenticated: !!user,
   };
 

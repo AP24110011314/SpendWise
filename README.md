@@ -143,7 +143,7 @@ Open **http://localhost:5173** in your browser.
 | `MONGODB_URI` | MongoDB connection string | `mongodb://127.0.0.1:27017/spendwise` |
 | `JWT_SECRET` | Secret for JWT signing (min 32 chars) | **Required** |
 | `JWT_EXPIRES_IN` | Token expiry | `7d` |
-| `CLIENT_ORIGIN` | Frontend URL for CORS | `http://localhost:5173` |
+| `CLIENT_ORIGIN` | Frontend URL(s) for CORS (comma-separated for multiple) | `http://localhost:5173,http://localhost:5174` |
 | `COOKIE_NAME` | Auth cookie name | `sw_token` |
 | `ENABLE_CRON` | Enable recurring transaction cron | `true` |
 | `RECURRING_CRON` | Cron schedule (cron format) | `5 0 * * *` |
@@ -163,7 +163,7 @@ Open **http://localhost:5173** in your browser.
 export NODE_ENV=production
 export MONGODB_URI="your-atlas-uri"
 export JWT_SECRET="your-secure-secret"
-export CLIENT_ORIGIN="https://yourdomain.com"
+export CLIENT_ORIGIN="https://yourdomain.com,https://www.yourdomain.com"
 
 npm ci
 npm run build
@@ -199,11 +199,11 @@ MongoDB is not running. Start it first (see Step 4).
 
 ### Login redirects back to `/login` immediately
 
-Clear your browser cookies for `localhost` and try logging in again. Also verify `CLIENT_ORIGIN` in `server/.env` matches your frontend URL exactly.
+Clear your browser cookies for `localhost` and try logging in again. Also verify `CLIENT_ORIGIN` in `server/.env` includes your frontend URL(s) (comma-separated for multiple).
 
 ### Cookie not persisting
 
-- `CLIENT_ORIGIN` in `server/.env` must exactly match the frontend URL (e.g., `http://localhost:5173`)
+- `CLIENT_ORIGIN` in `server/.env` must include the frontend URL(s) (comma-separated for multiple, e.g., `http://localhost:5173,http://localhost:5174`)
 - In development, cookies use `SameSite=Lax`; in production they require `SameSite=None; Secure`
 
 ### Chrome "password found in a data breach" warning

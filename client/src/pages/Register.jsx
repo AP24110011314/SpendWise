@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useNavigate } from 'react-router-dom';
-import { LayoutDashboard } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { LayoutDashboard, Sun, Moon } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { authApi } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import toast from 'react-hot-toast';
 
 const schema = z.object({
@@ -23,6 +24,7 @@ const schema = z.object({
 export default function Register() {
   const navigate = useNavigate();
   const { register: registerUser, user, loading: authLoading } = useAuth();
+  const { resolvedTheme, setTheme } = useTheme();
   const [loading, setLoading] = useState(false);
 
   // Redirect authenticated users to dashboard
@@ -56,14 +58,26 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#362e24] px-4 py-12 relative transition-colors duration-200">
+      <div className="absolute top-6 right-6">
+        <button
+          type="button"
+          className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-[#F9E6A8] dark:hover:bg-[#554737] dark:hover:text-[#F2A900] transition-colors"
+          onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+          aria-label="Toggle theme"
+        >
+          <Sun className="w-5 h-5 hidden dark:block text-[#F2A900]" />
+          <Moon className="w-5 h-5 dark:hidden" />
+        </button>
+      </div>
+
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-2xl mb-4">
-            <LayoutDashboard className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-[#F2A900] via-[#CC6F00] to-[#4D2A00] rounded-2xl mb-4 shadow-lg shadow-[#F2A900]/25">
+            <LayoutDashboard className="w-7 h-7 text-[#120b02]" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Create your account</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">Start tracking your finances with SpendWise</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-[#F9E6A8]">Create your account</h1>
+          <p className="text-gray-500 dark:text-[#c4a96b] mt-2">Start tracking your finances with SpendWise</p>
         </div>
 
         <div className="card p-8">
@@ -108,14 +122,14 @@ export default function Register() {
               name="confirmPassword"
             />
 
-            <Button type="submit" className="w-full" loading={loading}>
+            <Button type="submit" className="w-full btn-primary" loading={loading}>
               Create account
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+          <p className="mt-6 text-center text-sm text-gray-500 dark:text-[#ad8f55]">
             Already have an account?{' '}
-            <a href="/login" className="text-indigo-600 hover:underline font-medium">Sign in</a>
+            <Link to="/login" className="text-indigo-600 dark:text-[#F2A900] hover:underline font-medium">Sign in</Link>
           </p>
         </div>
       </div>

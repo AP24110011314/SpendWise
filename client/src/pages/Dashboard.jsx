@@ -1,11 +1,14 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { formatMonth, getCurrentMonth, addMonths } from '@/lib/dates';
 import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
 import MonthPicker from '@/components/ui/MonthPicker';
 import EmptyState from '@/components/ui/EmptyState';
 import ErrorState from '@/components/ui/ErrorState';
 import Spinner from '@/components/ui/Spinner';
+import { Plus } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -34,9 +37,9 @@ import {
 } from '@/hooks';
 
 const COLORS = [
-  '#22c55e', '#16a34a', '#15803d', '#166534', '#14532d',
-  '#ef4444', '#f97316', '#eab308', '#3b82f6', '#8b5cf6',
-  '#ec4899', '#06b6d4', '#84cc16', '#64748b', '#9ca3af',
+  '#F2A900', '#CC6F00', '#F9E6A8', '#10b981', '#3b82f6',
+  '#8b5cf6', '#ec4899', '#06b6d4', '#f59e0b', '#14b8a6',
+  '#6366f1', '#f43f5e', '#84cc16', '#a855f7', '#64748b',
 ];
 
 function formatAmount(amount, currency = 'INR') {
@@ -57,14 +60,16 @@ function formatAmountWithSign(amount, currency = 'INR') {
 
 function DashboardCard({ title, value, subtitle, trend, className = '' }) {
   return (
-    <Card className={`p-6 ${className}`}>
-      <p className="text-sm text-gray-500 dark:text-gray-400">{title}</p>
-      <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{value}</p>
+    <Card className={`p-3.5 sm:p-5 flex flex-col justify-between border border-gray-100 dark:border-gray-700/60 ${className}`}>
+      <div>
+        <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 truncate">{title}</p>
+        <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white mt-1 tracking-tight truncate">{value}</p>
+      </div>
       {(subtitle || trend !== undefined) && (
-        <div className="flex items-center gap-2 mt-2 text-sm">
-          {subtitle && <span className="text-gray-500 dark:text-gray-400">{subtitle}</span>}
+        <div className="flex items-center gap-1.5 mt-2 text-xs flex-wrap">
+          {subtitle && <span className="text-gray-500 dark:text-gray-400 text-[11px] sm:text-xs truncate">{subtitle}</span>}
           {trend !== undefined && (
-            <span className={trend >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+            <span className={`font-semibold text-[11px] sm:text-xs ${trend >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
               {trend >= 0 ? '↑' : '↓'} {Math.abs(trend).toFixed(1)}%
             </span>
           )}
@@ -88,47 +93,90 @@ function CategoryBreakdownChart({ data, currency = 'INR' }) {
     value: item.total / 100,
     color: item.color || COLORS[index % COLORS.length],
     pct: item.pct,
+    total: item.total,
   }));
 
+  const totalExpense = chartData.reduce((sum, item) => sum + item.value, 0);
+
   return (
-    <ResponsiveContainer width="100%" height={256}>
-      <PieChart>
-        <Pie
-          data={chartData}
-          cx="50%"
-          cy="50%"
-          innerRadius={60}
-          outerRadius={100}
-          paddingAngle={2}
-          dataKey="value"
-          nameKey="name"
-          label={({ name, pct }) => `${name} ${pct}%`}
-          labelLine={false}
-        >
-          {chartData.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.color} />
-          ))}
-        </Pie>
-        <Tooltip
-          formatter={(value) => [formatAmount(value * 100, currency), 'Amount']}
-          labelFormatter={(name) => name}
-          contentStyle={{
-            backgroundColor: '#fff',
-            border: '1px solid #e5e7eb',
-            borderRadius: '8px',
-            boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-          }}
-        />
-        <Legend
-          layout="vertical"
-          align="right"
-          verticalAlign="middle"
-          iconType="circle"
-          iconSize={8}
-          formatter={(value) => value}
-        />
-      </PieChart>
-    </ResponsiveContainer>
+    <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-6">
+      {/* Donut chart */}
+      <div className="h-64 relative flex items-center justify-center">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={chartData}
+              cx="50%"
+              cy="50%"
+              innerRadius={65}
+              outerRadius={95}
+              paddingAngle={2}
+              dataKey="value"
+              nameKey="name"
+              label={false}
+            >
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} stroke="transparent" />
+              ))}
+            </Pie>
+            <Tooltip
+              formatter={(value) => [formatAmount(value * 100, currency), 'Amount']}
+              contentStyle={{
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+                fontSize: '12px',
+              }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+        {/* Center label */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Total</span>
+          <span className="text-base font-bold text-gray-900 dark:text-white">
+            {formatAmount(totalExpense * 100, currency)}
+          </span>
+        </div>
+      </div>
+
+      {/* Categories Legend List with details and progress */}
+      <div className="space-y-2.5 max-h-64 overflow-y-auto pr-1">
+        {chartData.map((item) => (
+          <div key={item.name} className="flex flex-col gap-1 text-sm group">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 min-w-0">
+                <span
+                  className="w-3 h-3 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: item.color }}
+                />
+                <span className="font-medium text-gray-800 dark:text-gray-200 truncate" title={item.name}>
+                  {item.name}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <span className="text-gray-900 dark:text-white font-semibold">
+                  {formatAmount(item.total, currency)}
+                </span>
+                <span className="text-xs px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-medium">
+                  {item.pct ? `${item.pct.toFixed(1)}%` : `${((item.value / (totalExpense || 1)) * 100).toFixed(1)}%`}
+                </span>
+              </div>
+            </div>
+            {/* Proportion Bar */}
+            <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-300"
+                style={{
+                  width: `${Math.min(100, item.pct || ((item.value / (totalExpense || 1)) * 100))}%`,
+                  backgroundColor: item.color,
+                }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -450,6 +498,7 @@ function ForecastChart({ forecast, currency = 'INR' }) {
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const currency = user?.currency || 'INR';
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth());
@@ -487,7 +536,7 @@ export default function Dashboard() {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
             <p className="text-gray-500 dark:text-gray-400">Welcome back, {user?.name}</p>
           </div>
-          <MonthPicker value={formatMonth(selectedMonth)} onChange={setSelectedMonth} />
+          <MonthPicker value={selectedMonth} onChange={setSelectedMonth} />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4" aria-busy="true">
@@ -528,7 +577,7 @@ export default function Dashboard() {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
             <p className="text-gray-500 dark:text-gray-400">Welcome back, {user?.name}</p>
           </div>
-          <MonthPicker value={formatMonth(selectedMonth)} onChange={setSelectedMonth} />
+          <MonthPicker value={selectedMonth} onChange={setSelectedMonth} />
         </div>
         <ErrorState
           title="Failed to load dashboard"
@@ -549,10 +598,16 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
           <p className="text-gray-500 dark:text-gray-400">Welcome back, {user?.name}</p>
         </div>
-        <MonthPicker value={formatMonth(selectedMonth)} onChange={setSelectedMonth} />
+        <div className="flex items-center gap-3 flex-wrap">
+          <MonthPicker value={selectedMonth} onChange={setSelectedMonth} />
+          <Button onClick={() => navigate('/transactions?add=true', { state: { openAdd: true } })}>
+            <Plus className="w-4 h-4" />
+            <span>Add Transaction</span>
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
         <DashboardCard
           title="Income"
           value={formatAmount(summaryData?.income, currency)}
@@ -566,7 +621,7 @@ export default function Dashboard() {
         <DashboardCard
           title="Net Savings"
           value={formatAmountWithSign(summaryData?.net, currency)}
-          subtitle={summaryData?.net >= 0 ? 'Positive cash flow' : 'Spending exceeds income'}
+          subtitle={summaryData?.net >= 0 ? 'Positive flow' : 'Exceeds income'}
           trend={summaryData ? (summaryData.net / Math.max(Math.abs(summaryData.income), 1)) * 100 : undefined}
         />
         <DashboardCard
@@ -578,6 +633,7 @@ export default function Dashboard() {
           title="Projected Expenses"
           value={formatAmount(forecastData?.projectedTotal, currency)}
           subtitle={forecastData ? `Confidence: ${forecastData.confidence}` : undefined}
+          className="col-span-2 sm:col-span-1"
         />
       </div>
 

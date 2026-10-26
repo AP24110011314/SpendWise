@@ -2,8 +2,11 @@ import axios from 'axios';
 
 const TOKEN_KEY = 'sw_access_token';
 
+const rawBase = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_URL || '/api';
+const baseURL = rawBase.endsWith('/api') || rawBase === '/api' ? rawBase : `${rawBase.replace(/\/$/, '')}/api`;
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE || '/api',
+  baseURL,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -24,7 +27,17 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-  (response) => response.data,
+  (response) => {
+    const resData = response.data;
+    if (resData && typeof resData === 'object' && 'data' in resData) {
+      // If paginated response, keep the envelope so pagination is accessible
+      if ('pagination' in resData) {
+        return resData;
+      }
+      return resData.data;
+    }
+    return resData;
+  },
   (error) => {
     const { response, config } = error;
 

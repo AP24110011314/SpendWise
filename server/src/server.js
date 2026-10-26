@@ -5,6 +5,7 @@ import { getLogger } from './config/logger.js';
 import { startRecurringCron, runStartupCatchUp } from './jobs/recurring.jobs.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'node:fs';
 import express from 'express';
 
 const { PORT, NODE_ENV } = getEnv();
@@ -28,8 +29,8 @@ async function start() {
     // Run startup catch-up for recurring rules
     await runStartupCatchUp();
 
-    // Serve static files in production
-    if (NODE_ENV === 'production') {
+    // Serve static files in production if built client exists (monolithic deployment)
+    if (NODE_ENV === 'production' && fs.existsSync(path.join(clientDistPath, 'index.html'))) {
       app.use(express.static(clientDistPath));
       app.get('*', (req, res) => {
         if (!req.path.startsWith('/api')) {

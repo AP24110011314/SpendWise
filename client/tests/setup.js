@@ -1,12 +1,18 @@
 import '@testing-library/jest-dom';
 import { vi, expect } from 'vitest';
 
+const toastMock = {
+  success: vi.fn(),
+  error: vi.fn(),
+  loading: vi.fn(),
+  dismiss: vi.fn(),
+};
+
 vi.mock('react-hot-toast', () => ({
+  __esModule: true,
+  default: toastMock,
+  toast: toastMock,
   Toaster: ({ children }) => children,
-  toast: {
-    success: vi.fn(),
-    error: vi.fn(),
-  },
 }));
 
 Object.defineProperty(window, 'matchMedia', {

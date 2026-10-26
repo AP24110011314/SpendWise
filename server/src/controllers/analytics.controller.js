@@ -54,7 +54,9 @@ export async function getDailyController(req, res, next) {
 
 export async function compareMonthsController(req, res, next) {
   try {
-    const { monthA, monthB } = req.validated.query;
+    const query = req.validated.query;
+    const monthA = query.monthA || query.a;
+    const monthB = query.monthB || query.b;
     const tz = req.user.timezone || 'Asia/Kolkata';
     const data = await compareMonths(req.userId, monthA, monthB, tz);
     res.json({ data });

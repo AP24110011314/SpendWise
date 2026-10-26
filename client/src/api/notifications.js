@@ -2,11 +2,11 @@ import api from './client.js';
 
 export const notificationsApi = {
   list: (params) =>
-    api.get('/notifications', { params }),
+    api.get('/budgets/notifications', { params }),
 
   markRead: (id) =>
-    api.patch(`/notifications/${id}/read`),
+    api.patch(`/budgets/notifications/${id}/read`),
 
   markAllRead: () =>
-    api.post('/notifications/read-all'),
+    api.post('/budgets/notifications/read-all'),
 };

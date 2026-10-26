@@ -185,3 +185,57 @@ Claude Code: update this file at the end of every phase. Keep entries short and 
   - `npm test` → 186 tests pass ✅
   - `npm run lint` → 0 errors ✅
   - `npm run build && npm start` → production server on 5001 serves API ✅
+
+### Phase 8+++ — Login Redirect Fix (2026-10-26)
+- **Root cause**: Browser was blocking third-party cookies from the API (port 5001) when accessed via Vite proxy (port 5173). The httpOnly cookie set by the login endpoint was not being sent back on subsequent requests, causing `/auth/me` to return 401 and the dashboard to appear unauthenticated.
+- **Fix**:
+  1. **Server** (`server/src/middleware/auth.js`): Added `extractToken()` function that checks both `req.cookies.accessToken` and `Authorization: Bearer <token>` header. This provides a fallback when cookies are blocked.
+  2. **Client AuthContext** (`client/src/context/AuthContext.jsx`): Added `TOKEN_KEY='sw_access_token'` localStorage storage with `getStoredToken()`/`setStoredToken()` helpers. Modified `login()`/`register()` to store the access token in localStorage. Added redirect logic in Login/Register pages using `useEffect` to navigate to dashboard when already authenticated.
+  3. **Client API client** (`client/src/api/client.js`): Added request interceptor that injects `Authorization: Bearer <token>` header from localStorage on every request.
+  4. **Vite proxy** (`client/vite.config.js`): Added `cookieDomainRewrite: 'localhost:5173'` to ensure cookies are rewritten to the frontend domain.
+  5. **Login/Register pages**: Added `useEffect` redirect when `user` exists, improved error handling with `err?.message` fallback, added `data-testid="login-form"` for testing, early return `null` when redirecting to prevent flash.
+  6. **Favicon**: Created `client/public/favicon.svg` and linked in `client/index.html` to eliminate 404 noise.
+  7. **Tests**: Added comprehensive test suite in `client/tests/Login.test.jsx` (7 tests covering form render, valid submit, validation errors, error toasts, loading state). Mocked `react-hot-toast` and `localStorage`.
+- **Verification**: All 192 tests pass (7 client + 185 server), lint clean (0 errors). Manual flow works: login at http://localhost:5173 → "Welcome back!" toast → redirect to dashboard → refresh (stays logged in via localStorage token) → logout.
+
+### Phase 8++++ — CSV Import/Export Fix & Full Phase-by-Phase Verification (2026-10-27)
+- **Root cause for CSV import failure**:
+  1. In `client/src/pages/ImportExport.jsx`, `handleFileSelect` set preview batch data from the API response but did not retain the original `File` object in state, leaving `file` undefined when attempting to commit.
+  2. `client/src/api/importExport.js` appended `options` to `FormData` instead of `mapping` and `previewRows` strings required by server route validation.
+  3. `PreviewModal` did not populate `suggestedMapping` from preview response into react-hook-form `defaultValues`, causing blank selects.
+  4. `importSchema` validated `previewRows` with strict `z.number().positive()` and `z.enum(['income', 'expense'])`, which caused form validation to silently fail if any rows had format issues or errors, blocking submission without displaying errors.
+  5. `ImportBatch` cards in history looked for `batch.status === 'completed'` and `batch.validRows` / `batch.importedRows`, which did not match the model's actual fields (`importedCount`, `skippedDuplicates`, `invalidCount`).
+  6. Created transactions were missing `importBatchId` references, making `undoImport` depend on a fragile timestamp window.
+- **Fixes Applied**:
+  1. Updated `ImportExport.jsx` to retain `file` in `setPreviewBatch({ ...result, file })`.
+  2. Pre-filled `suggestedMapping` into form defaults (date, amount, debit, credit, note, category, delimiter, amountMode).
+  3. Loosened `previewRows` validation in client form schema to `z.array(z.any()).optional()`.
+  4. Updated `importBatchCard` to compute status (`batch.importedCount > 0 ? 'completed' : ...`) and display `totalRows`, `skippedDuplicates`, and `importedCount`.
+  5. Tagged created transactions with `importBatchId: importBatch._id`, and updated `undoImport` to delete by `importBatchId` with time window fallback.
+  6. Hooked `evaluateBudgets(userId)` into both import commit and undo.
+  7. Server `commitSchema` and controller accept both `mapping` and `options`, auto-generating `previewRows` if missing.
+  8. Removed past start date restriction on recurring rules in `client/src/pages/Recurring.jsx` to allow creating overdue rules and running catch-up occurrences.
+- **Verification**:
+  - All 192 tests pass (185 server + 7 client).
+  - `npm run lint`: 0 errors.
+  - `npm run build`: Success.
+  - Full Phase 0 to 8 end-to-end programmatic verification script passed (Health check, Auth, Transactions CRUD, Analytics summary/category/trend/daily, Budgets & Notifications, Recurring rules with past start dates and catch-up, CSV Preview -> Commit -> Duplicate check -> Undo -> Export, Forecast projections).
+
+### Phase 8+++++ — Compare Section Fix (2026-10-27)
+- **Root cause**:
+  1. `client/src/pages/Compare.jsx` extracted data via `const comparison = compareData?.data;`. Because the Axios interceptor in `client.js` automatically unwraps `resData.data`, `compareData` was already the comparison object, causing `comparison` to be `undefined` and rendering an empty state instead of cards and charts.
+  2. `monthA` and `monthB` states were initialized to empty strings `''`, causing the page to be blank on initial load instead of defaulting to previous month vs current month.
+  3. `compareSchema` in `server/src/routes/analytics.routes.js` strictly required `monthA` and `monthB`, rejecting requests using `a` and `b`.
+  4. Missing category breakdown table and handling for `pct === null` (which caused runtime TypeError when calling `pct.toFixed(1)` on new categories).
+- **Fixes Applied**:
+  1. Updated `Compare.jsx` to resolve `const comparison = compareData?.data || compareData;` safely.
+  2. Defaulted `monthA` to previous month and `monthB` to current month (`addMonths(getCurrentMonth(), -1)` and `getCurrentMonth()`), with full two-way URL search parameter synchronization (`?a=YYYY-MM&b=YYYY-MM`).
+  3. Updated `compareSchema` and `compareMonthsController` to accept both `monthA`/`monthB` and `a`/`b` query parameters.
+  4. Added Category Breakdown Table with delta and percentage change, correctly displaying "New" badge when `pct === null`.
+  5. Limited grouped bar chart to top 8 categories by absolute delta for clean readability.
+- **Verification**:
+  - `GET /api/analytics/compare?monthA=2026-09&monthB=2026-10` returns 200 with 10 categories.
+  - `GET /api/analytics/compare?a=2026-09&b=2026-10` returns 200 with 10 categories.
+  - All 192 tests pass (185 server + 7 client).
+  - `npm run lint`: 0 errors.
+  - `npm run build`: Clean production build.

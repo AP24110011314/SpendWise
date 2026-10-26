@@ -23,7 +23,7 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
+    if (file.mimetype === 'text/csv' || /\.csv$/i.test(file.originalname)) {
       cb(null, true);
     } else {
       cb(new Error('Only CSV files are allowed'), false);
@@ -62,16 +62,19 @@ const previewSchema = z.object({
 const commitSchema = z.object({
   body: z.object({
     importBatchId: objectIdSchema.optional(),
-    mapping: z.string().transform((val) => {
-      try {
-        return JSON.parse(val);
-      } catch {
-        return {};
-      }
-    }).pipe(z.object({
+    mapping: z.union([
+      z.string().transform((val) => {
+        try {
+          return JSON.parse(val);
+        } catch {
+          return {};
+        }
+      }),
+      z.object({}).passthrough(),
+    ]).pipe(z.object({
       filename: z.string().optional(),
       delimiter: z.string().optional(),
-      date: z.string(),
+      date: z.string().optional(),
       amount: z.string().optional(),
       debit: z.string().optional(),
       credit: z.string().optional(),
@@ -79,27 +82,27 @@ const commitSchema = z.object({
       category: z.string().optional(),
       type: z.string().optional(),
       amountMode: z.enum(['single', 'split']).optional(),
-    })),
-    previewRows: z.string().transform((val) => {
-      try {
-        return JSON.parse(val);
-      } catch {
-        return [];
-      }
-    }).pipe(z.array(z.object({
-      rowIndex: z.number().int().positive(),
-      date: z.string(),
-      amount: z.number().int().positive(),
-      type: z.enum(['income', 'expense']),
-      note: z.string().optional(),
-      categoryName: z.string().optional(),
-      categoryId: z.string().optional(),
-      valid: z.boolean(),
-      errors: z.array(z.object({
-        row: z.number(),
-        reason: z.string(),
-      })).optional(),
-    }))),
+    })).optional(),
+    options: z.union([
+      z.string().transform((val) => {
+        try {
+          return JSON.parse(val);
+        } catch {
+          return {};
+        }
+      }),
+      z.object({}).passthrough(),
+    ]).optional(),
+    previewRows: z.union([
+      z.string().transform((val) => {
+        try {
+          return JSON.parse(val);
+        } catch {
+          return [];
+        }
+      }),
+      z.array(z.any()),
+    ]).optional(),
   }),
   query: z.object({}),
   params: z.object({}),
@@ -136,9 +139,12 @@ const exportSchema = z.object({
 router.post('/preview', handleMulterError, validate(previewSchema), previewImportController);
 router.post('/commit', handleMulterError, validate(commitSchema), commitImportController);
 router.post('/:id/undo', validate(undoSchema), undoImportController);
+router.delete('/batches/:id', validate(undoSchema), undoImportController);
 router.get('/history', validate(listBatchesSchema), listImportBatchesController);
+router.get('/batches', validate(listBatchesSchema), listImportBatchesController);
 
-// Export route
+// Export routes
 router.get('/export', validate(exportSchema), exportTransactionsController);
+router.get('/transactions.csv', validate(exportSchema), exportTransactionsController);
 
 export default router;

@@ -37,3 +37,19 @@ export function dateToInputValue(date) {
   if (isNaN(d.getTime())) return '';
   return d.toISOString().split('T')[0];
 }
+
+export function parseMonth(month) {
+  if (!month) return { year: 0, month: 0 };
+  const [year, monthNum] = month.split('-').map(Number);
+  return { year, month: monthNum };
+}
+
+export function formatAmount(amount, currency = 'INR') {
+  if (amount == null) return '';
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount / 100);
+}

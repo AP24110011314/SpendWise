@@ -37,10 +37,11 @@ export async function previewImportController(req, res, next) {
 export async function commitImportController(req, res, next) {
   try {
     const userId = req.userId;
-    const { importBatchId, mapping, previewRows } = req.validated.body;
+    const body = req.validated.body;
+    const mapping = body.mapping || body.options || {};
+    const previewRows = body.previewRows || [];
 
-    // If importBatchId provided, this is a re-commit of a previous preview
-    // Otherwise, we need the file buffer (for new imports)
+    // For new imports, file buffer is required
     let buffer;
     if (req.file) {
       buffer = req.file.buffer;

@@ -1,8 +1,10 @@
 import api from './client.js';
 
 export const categoriesApi = {
-  list: (type) =>
-    api.get('/categories', { params: { type } }),
+  list: (type) => {
+    const params = type ? { type } : {};
+    return api.get('/categories', { params });
+  },
 
   create: (data) =>
     api.post('/categories', data),
@@ -10,6 +12,8 @@ export const categoriesApi = {
   update: (id, data) =>
     api.patch(`/categories/${id}`, data),
 
-  delete: (id, reassignTo) =>
-    api.delete(`/categories/${id}`, { params: { reassignTo } }),
+  delete: (id, reassignTo) => {
+    const params = typeof reassignTo === 'string' && reassignTo.trim() ? { reassignTo: reassignTo.trim() } : {};
+    return api.delete(`/categories/${id}`, { params });
+  },
 };

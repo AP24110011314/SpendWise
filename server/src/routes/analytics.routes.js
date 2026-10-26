@@ -50,8 +50,12 @@ const dailySchema = z.object({
 const compareSchema = z.object({
   body: z.object({}),
   query: z.object({
-    monthA: monthSchema,
-    monthB: monthSchema,
+    monthA: monthSchema.optional(),
+    monthB: monthSchema.optional(),
+    a: monthSchema.optional(),
+    b: monthSchema.optional(),
+  }).refine((q) => (q.monthA || q.a) && (q.monthB || q.b), {
+    message: 'Both monthA (or a) and monthB (or b) are required',
   }),
   params: z.object({}),
 });

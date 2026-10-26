@@ -1,8 +1,17 @@
 import api from './client.js';
 
 export const budgetsApi = {
-  list: (month) =>
-    api.get('/budgets', { params: { month } }),
+  list: (params = {}) => {
+    const { month, ...rest } = params;
+    const queryParams = {};
+    if (month) queryParams.month = month;
+    for (const [key, val] of Object.entries(rest)) {
+      if (val !== '' && val !== undefined && val !== null) {
+        queryParams[key] = val;
+      }
+    }
+    return api.get('/budgets', { params: queryParams });
+  },
 
   create: (data) =>
     api.post('/budgets', data),
@@ -13,9 +22,20 @@ export const budgetsApi = {
   delete: (id) =>
     api.delete(`/budgets/${id}`),
 
-  progress: (month) =>
-    api.get('/budgets/progress', { params: { month } }),
+  progress: (params = {}) => {
+    const { month, ...rest } = params;
+    const queryParams = {};
+    if (month) queryParams.month = month;
+    for (const [key, val] of Object.entries(rest)) {
+      if (val !== '' && val !== undefined && val !== null) {
+        queryParams[key] = val;
+      }
+    }
+    return api.get('/budgets/progress', { params: queryParams });
+  },
 
-  copy: (fromMonth, toMonth) =>
-    api.post('/budgets/copy', { fromMonth, toMonth }),
+  copy: (fromMonth, toMonth) => {
+    const payload = typeof fromMonth === 'object' && fromMonth !== null ? fromMonth : { fromMonth, toMonth };
+    return api.post('/budgets/copy', payload);
+  },
 };

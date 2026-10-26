@@ -26,7 +26,7 @@ export function createApp() {
 
   // CORS configuration
   const isDevelopment = NODE_ENV !== 'production';
-  const clientOrigins = CLIENT_ORIGIN.split(',').map(o => o.trim()).filter(Boolean);
+  const clientOrigins = CLIENT_ORIGIN.split(',').map(o => o.trim().replace(/\/$/, '')).filter(Boolean);
   const devOrigins = [
     'http://localhost:5173',
     'http://localhost:5174',
@@ -39,21 +39,29 @@ export function createApp() {
 
   const corsOptions = {
     origin: (origin, callback) => {
-      // Allow requests with no Origin header (e.g., server-to-server, curl, Postman)
+      // Allow requests with no Origin header (e.g., server-to-server, curl, Postman, health check)
       if (!origin) {
         return callback(null, true);
       }
-      if (allowedOrigins.includes(origin)) {
+      const normalizedOrigin = origin.replace(/\/$/, '');
+      if (
+        allowedOrigins.includes('*') ||
+        allowedOrigins.includes(normalizedOrigin) ||
+        (allowedOrigins.some(o => o.includes('vercel.app')) && normalizedOrigin.endsWith('.vercel.app'))
+      ) {
         return callback(null, true);
       }
-      // Disallowed origin: respond without CORS headers (or 403 with standard error envelope)
-      // Never pass an Error to next()
+      // Disallowed origin: respond without CORS headers
       return callback(null, false);
     },
     credentials: true,
   };
 
   app.use(cors(corsOptions));
+
+  // Health check endpoints for Render and monitoring
+  app.get('/health', (req, res) => res.status(200).json({ status: 'ok', service: 'SpendWise API' }));
+  app.get('/', (req, res) => res.status(200).json({ status: 'ok', service: 'SpendWise API', health: '/api/health' }));
 
   // Body parsing
   app.use(express.json({ limit: '100kb' }));

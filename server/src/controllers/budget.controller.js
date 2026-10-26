@@ -20,7 +20,7 @@ export async function getProgressController(req, res, next) {
   try {
     const { month } = req.query;
     const progress = await getBudgetProgress(req.userId, month || currentMonth());
-    res.json({ progress });
+    res.json({ data: progress, progress });
   } catch (err) {
     next(err);
   }
@@ -32,7 +32,7 @@ export async function getProgressController(req, res, next) {
 export async function createBudgetController(req, res, next) {
   try {
     const budget = await createBudget(req.userId, req.body);
-    res.status(201).json({ budget });
+    res.status(201).json({ data: budget, budget });
   } catch (err) {
     next(err);
   }
@@ -45,7 +45,7 @@ export async function listBudgetsController(req, res, next) {
   try {
     const { month } = req.query;
     const budgets = await listBudgets(req.userId, month);
-    res.json({ budgets });
+    res.json({ data: budgets, budgets });
   } catch (err) {
     next(err);
   }
@@ -57,7 +57,7 @@ export async function listBudgetsController(req, res, next) {
 export async function getBudgetController(req, res, next) {
   try {
     const budget = await getBudget(req.userId, req.params.id);
-    res.json({ budget });
+    res.json({ data: budget, budget });
   } catch (err) {
     next(err);
   }
@@ -69,7 +69,7 @@ export async function getBudgetController(req, res, next) {
 export async function updateBudgetController(req, res, next) {
   try {
     const budget = await updateBudget(req.userId, req.params.id, req.body);
-    res.json({ budget });
+    res.json({ data: budget, budget });
   } catch (err) {
     next(err);
   }
@@ -97,7 +97,7 @@ export async function copyBudgetsController(req, res, next) {
       throw ApiError.badRequest('fromMonth and toMonth are required');
     }
     const budgets = await copyBudgets(req.userId, fromMonth, toMonth);
-    res.json({ budgets });
+    res.json({ data: budgets, budgets });
   } catch (err) {
     next(err);
   }
@@ -110,7 +110,7 @@ export async function listNotificationsController(req, res, next) {
   try {
     const { unreadOnly } = req.query;
     const notifications = await listNotifications(req.userId, { unreadOnly: unreadOnly === 'true' });
-    res.json({ notifications });
+    res.json({ data: notifications, notifications });
   } catch (err) {
     next(err);
   }
@@ -122,7 +122,7 @@ export async function listNotificationsController(req, res, next) {
 export async function markNotificationReadController(req, res, next) {
   try {
     const notification = await markNotificationRead(req.userId, req.params.id);
-    res.json({ notification });
+    res.json({ data: notification, notification });
   } catch (err) {
     next(err);
   }

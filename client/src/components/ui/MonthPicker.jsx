@@ -2,10 +2,27 @@ import { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { format, parseISO, startOfMonth, addMonths, subMonths, isSameMonth } from 'date-fns';
 
+const parseValueToDate = (val) => {
+  if (!val) return startOfMonth(new Date());
+  if (val instanceof Date) return startOfMonth(val);
+  if (typeof val === 'string') {
+    if (/^\d{4}-\d{2}$/.test(val)) {
+      try {
+        return parseISO(`${val}-01`);
+      } catch {}
+    }
+    const parsed = new Date(val);
+    if (!isNaN(parsed.getTime())) {
+      return startOfMonth(parsed);
+    }
+  }
+  return startOfMonth(new Date());
+};
+
 const MonthPicker = ({ value, onChange, className = '' }) => {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const currentDate = value ? parseISO(`${value}-01`) : startOfMonth(new Date());
+  const currentDate = parseValueToDate(value);
 
   useEffect(() => {
     function handleClickOutside(event) {

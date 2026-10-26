@@ -13,8 +13,8 @@ export const analyticsApi = {
   daily: (month) =>
     api.get('/analytics/daily', { params: { month } }),
 
-  compare: (a, b) =>
-    api.get('/analytics/compare', { params: { a, b } }),
+  compare: (monthA, monthB) =>
+    api.get('/analytics/compare', { params: { monthA, monthB } }),
 
   forecast: (month) =>
     api.get('/analytics/forecast', { params: { month } }),

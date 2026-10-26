@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: spendwise-api
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install
+    startCommand: npm run start -w server
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: COOKIE_NAME
+        value: sw_token
+      - key: ENABLE_CRON
+        value: "true"
+      - key: RECURRING_CRON
+        value: "5 0 * * *"
+      - key: LOG_LEVEL
+        value: info

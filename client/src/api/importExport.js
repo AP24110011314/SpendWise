@@ -9,10 +9,21 @@ export const importExportApi = {
     });
   },
 
-  commit: (file, options) => {
+  commit: (file, payload = {}) => {
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('options', JSON.stringify(options));
+    if (file) {
+      formData.append('file', file);
+    }
+    const mapping = payload.mapping || payload.options || payload;
+    formData.append('mapping', typeof mapping === 'string' ? mapping : JSON.stringify(mapping));
+    if (payload.previewRows) {
+      formData.append(
+        'previewRows',
+        typeof payload.previewRows === 'string'
+          ? payload.previewRows
+          : JSON.stringify(payload.previewRows)
+      );
+    }
     return api.post('/import/commit', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
@@ -25,5 +36,5 @@ export const importExportApi = {
     api.delete(`/import/batches/${id}`),
 
   export: (params) =>
-    api.get('/export/transactions.csv', { params, responseType: 'blob' }),
+    api.get('/import/transactions.csv', { params, responseType: 'blob' }),
 };

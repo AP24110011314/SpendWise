@@ -7,6 +7,7 @@ import analyticsRoutes from './analytics.routes.js';
 import budgetRoutes from './budget.routes.js';
 import recurringRoutes from './recurring.routes.js';
 import importRoutes from './import.routes.js';
+import notificationRoutes from './notification.routes.js';
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use('/analytics', analyticsRoutes);
 router.use('/budgets', budgetRoutes);
 router.use('/recurring', recurringRoutes);
 router.use('/import', importRoutes);
+router.use('/notifications', notificationRoutes);
 
 export default router;

@@ -1,6 +1,5 @@
 import { parse } from 'csv-parse/sync';
 import { stringify } from 'csv-stringify/sync';
-import { v4 as uuidv4 } from 'uuid';
 import mongoose from 'mongoose';
 import { Transaction } from '../models/Transaction.js';
 import { Category } from '../models/Category.js';
@@ -325,9 +324,18 @@ export async function previewImport(userId, buffer, mapping = {}) {
 /**
  * Commit import - process validated rows and create transactions
  */
-export async function commitImport(userId, buffer, mapping, previewRows) {
+export async function commitImport(userId, buffer, mapping = {}, previewRows = []) {
   if (buffer.length > MAX_FILE_SIZE) {
     throw new Error('File size exceeds 5 MB limit');
+  }
+
+  // If previewRows is not provided, generate from previewImport
+  if (!previewRows || previewRows.length === 0) {
+    const preview = await previewImport(userId, buffer, mapping);
+    previewRows = preview.previewRows;
+    if (!mapping.delimiter) {
+      mapping.delimiter = preview.delimiter;
+    }
   }
 
   const { records } = parseCsv(buffer, mapping.delimiter);
@@ -407,6 +415,7 @@ export async function commitImport(userId, buffer, mapping, previewRows) {
       amount: previewRow.amount,
       note: previewRow.note,
       date: new Date(previewRow.date),
+      importBatchId: importBatch._id,
       fingerprint,
       isRecurring: false,
     });
@@ -433,6 +442,14 @@ export async function commitImport(userId, buffer, mapping, previewRows) {
   importBatch.errors = errors;
   await importBatch.save();
 
+  // Evaluate budgets for imported transactions
+  try {
+    const { evaluateBudgets } = await import('./budget.service.js');
+    await evaluateBudgets(userId);
+  } catch (_err) {
+    // Budget evaluation failure should not block import commit
+  }
+
   return {
     importBatchId: importBatch._id,
     importedCount,
@@ -456,15 +473,16 @@ export async function undoImport(userId, importBatchId) {
     throw ApiError.notFound('Import batch not found');
   }
 
-  // Find transactions by fingerprint matching this batch's time range
-  // Since we don't store fingerprints in batch, we use the createdAt range
-  const startOfBatch = batch.createdAt;
-  const endOfBatch = new Date(startOfBatch.getTime() + 60000); // 1 minute window
+  // Find transactions by importBatchId or matching createdAt window
+  const startOfBatch = new Date(batch.createdAt.getTime() - 15000);
+  const endOfBatch = new Date(batch.createdAt.getTime() + 120000);
 
-  // Find transactions created during this batch window
   const transactions = await Transaction.find({
     userId,
-    createdAt: { $gte: startOfBatch, $lt: endOfBatch },
+    $or: [
+      { importBatchId: batch._id },
+      { createdAt: { $gte: startOfBatch, $lt: endOfBatch } },
+    ],
   }).select('_id');
 
   const transactionIds = transactions.map(t => t._id);
@@ -473,7 +491,14 @@ export async function undoImport(userId, importBatchId) {
     await Transaction.deleteMany({ _id: { $in: transactionIds } });
   }
 
-  // Mark batch as undone (could add a status field, but for now just return count)
+  // Re-evaluate budgets
+  try {
+    const { evaluateBudgets } = await import('./budget.service.js');
+    await evaluateBudgets(userId);
+  } catch (_err) {
+    // Budget evaluation failure should not block undo
+  }
+
   return { deletedCount: transactionIds.length };
 }
 
