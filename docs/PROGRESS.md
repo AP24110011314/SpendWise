@@ -145,3 +145,13 @@ Claude Code: update this file at the end of every phase. Keep entries short and 
 ## Known issues / follow-ups
 - Minor ESLint warnings about unused variables in test files and some source files (non-blocking)
 - Client bundle size warning (>500KB) - could be improved with code splitting
+
+### Phase 8+ — Auth Flow Fix (2026-10-26)
+- **Root cause**: macOS ControlCenter occupies port 5000 by default (AirPlay receiver). The server was configured for PORT=5000 in `.env`, and the Vite proxy targeted `http://localhost:5000`. When the server started, it failed to bind to port 5000 silently (or exited), leaving the Vite proxy forwarding requests to a non-server process (ControlCenter), which returned 403/500 responses. The demo user also wasn't seeded initially, so login returned 401 "Invalid credentials".
+- **Fix**:
+  1. Changed server PORT from 5000 to 5001 in `server/.env` to avoid macOS port conflict
+  2. Updated `client/vite.config.js` proxy target to `http://localhost:5001`
+  3. Ran `npm run seed` to create demo user `demo@spendwise.app` with password `demo12345`
+  4. Verified `/api/auth/me` returns 401 without cookie, login returns 200 with httpOnly cookie, and `/api/auth/me` with cookie returns user
+  5. Fixed React Router v6 future-flag warnings by adding `future={{ v7_startTransition: true, v7_relativeSplatPath: true }}` to `BrowserRouter` in `client/src/main.jsx` and test file
+- **Verification**: All 182 server tests pass, 1 client test passes, lint clean (0 errors), browser flow works: login → dashboard → refresh (stay logged in) → logout

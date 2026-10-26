@@ -44,14 +44,14 @@ const changePasswordSchema = z.object({
   }),
 });
 
-// Apply auth rate limit to auth endpoints
-router.use(authRateLimit);
+// Apply auth rate limit only to public auth endpoints (register, login)
+const publicAuthRateLimit = authRateLimit;
 
-// Public routes
-router.post('/register', validate(registerSchema), registerController);
-router.post('/login', validate(loginSchema), loginController);
+// Public routes - rate limited
+router.post('/register', publicAuthRateLimit, validate(registerSchema), registerController);
+router.post('/login', publicAuthRateLimit, validate(loginSchema), loginController);
 
-// Protected routes
+// Protected routes - no rate limit (called frequently for auth verification)
 router.post('/logout', authMiddleware, logoutController);
 router.get('/me', authMiddleware, meController);
 router.patch('/me', authMiddleware, validate(updateMeSchema), updateMeController);

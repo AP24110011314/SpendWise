@@ -40,12 +40,14 @@ cp client/.env.example client/.env
 # Generate a secure JWT secret:
 # node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 
-# Seed demo data (demo@spendwise.app / Demo@1234)
+# Seed demo data (demo@spendwise.app / demo12345)
 npm run seed
 
-# Start development servers (API on :5000, client on :5173)
+# Start development servers (API on :5001, client on :5173)
 npm run dev
 ```
+
+> **Note on ports**: The API runs on port **5001** (not 5000) to avoid conflict with macOS AirPlay. The Vite proxy in `client/vite.config.js` forwards `/api/*` to `http://localhost:5001`.
 
 ## Available Scripts
 
@@ -67,7 +69,7 @@ npm run dev
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `NODE_ENV` | Environment | `development` |
-| `PORT` | API port | `5000` |
+| `PORT` | API port | `5001` |
 | `MONGODB_URI` | MongoDB connection string | `mongodb://127.0.0.1:27017/spendwise` |
 | `JWT_SECRET` | Secret for JWT signing (min 32 chars) | **Required** |
 | `JWT_EXPIRES_IN` | Token expiry | `7d` |
@@ -99,6 +101,23 @@ npm start
 ```
 
 The production server serves both the API and the built React app on the same port.
+
+## Troubleshooting
+
+### Port 5000 already in use (macOS)
+macOS reserves port 5000 for AirPlay. This project uses **port 5001** for the API by default. If you see `EADDRINUSE: address already in use :::5000`, ensure `server/.env` has `PORT=5001` and `client/vite.config.js` proxy targets `http://localhost:5001`.
+
+### Login works but redirects back to /login
+If you can sign in but get redirected to the login page immediately, the rate limiter may be blocking `/api/auth/me` calls. The fix: rate limiting is applied only to `/auth/register` and `/auth/login` — not to `/auth/me` or other protected endpoints.
+
+### Cookie not persisting
+- Ensure `CLIENT_ORIGIN` in `server/.env` exactly matches your frontend URL (e.g., `http://localhost:5173`)
+- In development, cookies use `SameSite=Lax`; in production they use `SameSite=None; Secure`
+- Clear browser cookies for `localhost` if switching between projects
+
+### MongoDB connection issues
+- Verify MongoDB is running locally (`mongodb://127.0.0.1:27017`) or use a valid Atlas URI
+- Check `MONGODB_URI` in `server/.env`
 
 ## Project Structure
 
