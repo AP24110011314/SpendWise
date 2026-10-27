@@ -50,8 +50,8 @@ export default function NotificationBell() {
         onClick={() => setOpen(false)}
         aria-hidden="true"
       />
-      <div className="fixed right-4 sm:right-6 top-16 w-80 sm:w-96 bg-white dark:bg-[#453a2d] rounded-xl border border-gray-200 dark:border-[#786144] shadow-2xl z-[100] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-[#786144] bg-gray-50/70 dark:bg-[#3d3327]">
+      <div className="fixed right-4 sm:right-6 top-16 w-80 sm:w-96 bg-white dark:bg-[#2d3342] rounded-xl border border-gray-200 dark:border-[#434c5e] shadow-2xl z-[100] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-[#434c5e] bg-gray-50/70 dark:bg-[#333a4a]">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-[#FFFDF7]">Notifications</h3>
             {unreadCount > 0 && (
@@ -71,14 +71,14 @@ export default function NotificationBell() {
           )}
         </div>
 
-        <div className="max-h-96 overflow-y-auto divide-y divide-gray-100 dark:divide-[#786144]/60">
+        <div className="max-h-96 overflow-y-auto divide-y divide-gray-100 dark:divide-[#434c5e]/60">
           {notifications.length === 0 ? (
-            <div className="px-4 py-8 text-center text-gray-500 dark:text-[#bfa87c] text-sm">
-              <Mail className="w-8 h-8 text-gray-300 dark:text-[#786144] mx-auto mb-2" />
+            <div className="px-4 py-8 text-center text-gray-500 dark:text-[#CBD5E1] text-sm">
+              <Mail className="w-8 h-8 text-gray-300 dark:text-[#64748B] mx-auto mb-2" />
               No notifications
             </div>
           ) : (
-            <ul className="divide-y divide-gray-100 dark:divide-[#786144]/60" role="list" aria-label="Notifications">
+            <ul className="divide-y divide-gray-100 dark:divide-[#434c5e]/60" role="list" aria-label="Notifications">
               {notifications.map((notification) => {
                 const id = notification._id || notification.id;
                 const isUnread = !notification.readAt;
@@ -87,8 +87,8 @@ export default function NotificationBell() {
                     key={id}
                     className={`px-4 py-3 transition-colors ${
                       isUnread
-                        ? 'bg-amber-50/50 dark:bg-[#3d3327]/80'
-                        : 'hover:bg-gray-50 dark:hover:bg-[#554737]/40'
+                        ? 'bg-amber-50/50 dark:bg-[#333a4a]/80'
+                        : 'hover:bg-gray-50 dark:hover:bg-[#333a4a]/40'
                     }`}
                   >
                     <div className="flex items-start gap-3">
@@ -96,10 +96,10 @@ export default function NotificationBell() {
                         <Mail className="w-4 h-4 text-amber-700 dark:text-[#F2A900]" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm ${isUnread ? 'font-medium text-gray-900 dark:text-[#FFFDF7]' : 'text-gray-600 dark:text-[#decaa0]'}`}>
+                        <p className={`text-sm ${isUnread ? 'font-medium text-gray-900 dark:text-[#FFFDF7]' : 'text-gray-600 dark:text-[#CBD5E1]'}`}>
                           {notification.message}
                         </p>
-                        <p className="text-xs text-gray-400 dark:text-[#bfa87c] mt-1">
+                        <p className="text-xs text-gray-400 dark:text-[#94A3B8] mt-1">
                           {notification.createdAt ? new Date(notification.createdAt).toLocaleDateString(undefined, {
                             month: 'short',
                             day: 'numeric',
@@ -111,7 +111,7 @@ export default function NotificationBell() {
                       {isUnread && (
                         <button
                           onClick={(e) => handleMarkRead(id, e)}
-                          className="p-1 text-gray-400 hover:text-amber-600 dark:text-[#bfa87c] dark:hover:text-[#F2A900] rounded transition-colors"
+                          className="p-1 text-gray-400 hover:text-amber-600 dark:text-[#CBD5E1] dark:hover:text-[#F2A900] rounded transition-colors"
                           title="Mark as read"
                           aria-label="Mark as read"
                         >
@@ -132,7 +132,7 @@ export default function NotificationBell() {
   return (
     <div className="relative">
       <button
-        className="relative p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-[#F9E6A8] dark:hover:bg-[#554737] dark:hover:text-[#F2A900] transition-colors"
+        className="relative p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-[#F9E6A8] dark:hover:bg-[#333a4a] dark:hover:text-[#F2A900] transition-colors"
         onClick={() => setOpen(!open)}
         aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
         aria-expanded={open}

@@ -108,7 +108,7 @@ export default function Login() {
   // Show loader while redirecting instead of unmounting
   if (authLoading || user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#362e24]" role="status">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#222732]" role="status">
         <Loader2 className="w-8 h-8 text-[#F2A900] animate-spin" />
         <span className="sr-only">Redirecting...</span>
       </div>
@@ -116,9 +116,9 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col lg:grid lg:grid-cols-12 bg-gray-50 dark:bg-[#362e24] text-gray-900 dark:text-[#F9E6A8] transition-colors duration-200">
+    <div className="min-h-screen flex flex-col lg:grid lg:grid-cols-12 bg-gray-50 dark:bg-[#222732] text-gray-900 dark:text-[#F9E6A8] transition-colors duration-200">
       {/* Left Column: Website Info & Feature Showcase (Light and Dark Mode) */}
-      <div className="lg:col-span-7 xl:col-span-7 bg-gradient-to-br from-amber-50/70 via-[#fcfaf6] to-amber-100/40 dark:bg-gradient-to-br dark:from-[#3b3125] dark:via-[#332a20] dark:to-[#2b2219] text-gray-900 dark:text-white p-6 sm:p-10 lg:p-12 xl:p-16 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-amber-200/80 dark:border-[#786144]/60 relative overflow-hidden transition-colors duration-200">
+      <div className="lg:col-span-7 xl:col-span-7 bg-gradient-to-br from-amber-50/70 via-[#fcfaf6] to-amber-100/40 dark:bg-gradient-to-br dark:from-[#2d3342] dark:via-[#252a35] dark:to-[#1e232d] text-gray-900 dark:text-white p-6 sm:p-10 lg:p-12 xl:p-16 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-amber-200/80 dark:border-[#434c5e]/60 relative overflow-hidden transition-colors duration-200">
         {/* Ambient background glow orbs */}
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-amber-200/50 dark:bg-[#F2A900]/15 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-amber-300/30 dark:bg-[#CC6F00]/20 blur-3xl pointer-events-none" />
@@ -148,7 +148,7 @@ export default function Login() {
                 clarity and precision.
               </span>
             </h2>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-[#e5d4aa] leading-relaxed">
+            <p className="text-sm sm:text-base text-gray-600 dark:text-[#CBD5E1] leading-relaxed">
               SpendWise empowers you to track expenses, automate recurring bills, monitor category budgets,
               and gain deep visual insights—all in a high-performance, private workspace.
             </p>
@@ -159,21 +159,21 @@ export default function Login() {
             {features.map((feat, idx) => (
               <div
                 key={idx}
-                className="p-4 rounded-xl bg-white/85 dark:bg-[#453a2d]/80 border border-amber-200/80 dark:border-[#786144] shadow-xs hover:shadow-md hover:border-amber-400 dark:hover:border-[#CC6F00]/70 transition-all duration-200 group hover:bg-white dark:hover:bg-[#524435]"
+                className="p-4 rounded-xl bg-white/85 dark:bg-[#2d3342]/90 border border-amber-200/80 dark:border-[#434c5e] shadow-xs hover:shadow-md hover:border-amber-400 dark:hover:border-[#F2A900]/70 transition-all duration-200 group hover:bg-white dark:hover:bg-[#333a4a]"
               >
-                <div className="w-9 h-9 rounded-lg bg-amber-100 dark:bg-gradient-to-br dark:from-[#5a4835] dark:to-[#3f3224] border border-amber-300/60 dark:border-[#CC6F00]/40 flex items-center justify-center text-amber-700 dark:text-[#F2A900] mb-3 group-hover:scale-105 transition-transform">
+                <div className="w-9 h-9 rounded-lg bg-amber-100 dark:bg-[#333a4a] border border-amber-300/60 dark:border-[#434c5e] flex items-center justify-center text-amber-700 dark:text-[#F2A900] mb-3 group-hover:scale-105 transition-transform">
                   <feat.icon className="w-5 h-5" />
                 </div>
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-[#FFFDF7] mb-1">{feat.title}</h3>
-                <p className="text-xs text-gray-600 dark:text-[#d1bea0] leading-relaxed">{feat.desc}</p>
+                <p className="text-xs text-gray-600 dark:text-[#CBD5E1] leading-relaxed">{feat.desc}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Bottom trust bar & quick demo banner */}
-        <div className="relative z-10 pt-6 border-t border-amber-200/80 dark:border-[#786144]/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4 text-xs text-gray-600 dark:text-[#c4af85]">
+        <div className="relative z-10 pt-6 border-t border-amber-200/80 dark:border-[#434c5e]/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4 text-xs text-gray-600 dark:text-[#CBD5E1]">
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 text-amber-600 dark:text-[#F2A900]" />
               Zero telemetry
@@ -192,7 +192,7 @@ export default function Login() {
           <button
             type="button"
             onClick={handleFillDemo}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-white hover:bg-amber-50 dark:bg-[#4d3f31] dark:hover:bg-[#5e4d3c] border border-amber-300 dark:border-[#CC6F00] text-xs font-semibold text-amber-900 dark:text-[#FFFDF7] transition-colors shadow-xs"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-white hover:bg-amber-50 dark:bg-[#333a4a] dark:hover:bg-[#3d4556] border border-amber-300 dark:border-[#434c5e] text-xs font-semibold text-amber-900 dark:text-[#FFFDF7] transition-colors shadow-xs"
             title="Auto-fill with test account demo@spendwise.app"
           >
             <Zap className="w-3.5 h-3.5 text-amber-600 dark:text-[#F2A900]" />
@@ -207,7 +207,7 @@ export default function Login() {
         <div className="absolute top-6 right-6 flex items-center gap-2">
           <button
             type="button"
-            className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-[#F9E6A8] dark:hover:bg-[#554737] dark:hover:text-[#F2A900] transition-colors"
+            className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-[#F9E6A8] dark:hover:bg-[#333a4a] dark:hover:text-[#F2A900] transition-colors"
             onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
             aria-label="Toggle theme"
             title={resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
@@ -226,7 +226,7 @@ export default function Login() {
             <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-[#FFFDF7]">
               Welcome back
             </h1>
-            <p className="text-sm text-gray-500 dark:text-[#decaa0] mt-2">
+            <p className="text-sm text-gray-500 dark:text-[#CBD5E1] mt-2">
               Sign in to your SpendWise account
             </p>
           </div>
@@ -257,7 +257,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-[34px] text-gray-400 hover:text-gray-600 dark:text-[#c4af85] dark:hover:text-[#F9E6A8] transition-colors"
+                  className="absolute right-3 top-[34px] text-gray-400 hover:text-gray-600 dark:text-[#94A3B8] dark:hover:text-[#F2A900] transition-colors"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   tabIndex={-1}
                 >
@@ -274,24 +274,24 @@ export default function Login() {
 
             {/* Quick Demo Helper Banner */}
             <div className="mt-6 pt-5 border-t border-gray-100 dark:border-gray-700">
-              <div className="rounded-lg bg-gray-50 dark:bg-[#3d3327] p-3 border border-gray-200 dark:border-gray-700 flex items-center justify-between gap-3 text-xs">
+              <div className="rounded-lg bg-gray-50 dark:bg-[#282e3b] p-3 border border-gray-200 dark:border-[#434c5e] flex items-center justify-between gap-3 text-xs">
                 <div className="min-w-0">
                   <span className="font-semibold text-gray-700 dark:text-[#FFFDF7] block">Demo Credentials:</span>
-                  <span className="text-gray-500 dark:text-[#decaa0] font-mono truncate block">
+                  <span className="text-gray-500 dark:text-[#CBD5E1] font-mono truncate block">
                     demo@spendwise.app
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={handleFillDemo}
-                  className="shrink-0 px-2.5 py-1 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 dark:bg-[#4d3f31] dark:text-[#F2A900] dark:hover:bg-[#F2A900] dark:hover:text-[#1e170e] font-semibold transition-colors"
+                  className="shrink-0 px-2.5 py-1 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 dark:bg-[#333a4a] dark:text-[#F2A900] dark:hover:bg-[#F2A900] dark:hover:text-[#111827] font-semibold transition-colors"
                 >
                   Fill
                 </button>
               </div>
             </div>
 
-            <p className="mt-6 text-center text-sm text-gray-500 dark:text-[#ad8f55]">
+            <p className="mt-6 text-center text-sm text-gray-500 dark:text-[#94A3B8]">
               Don't have an account?{' '}
               <Link to="/register" className="text-indigo-600 dark:text-[#F2A900] hover:underline font-medium">
                 Sign up

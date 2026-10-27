@@ -82,7 +82,7 @@ export default function AppShell() {
             </div>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-[#F9E6A8] hover:bg-gray-100 dark:hover:bg-[#554737]"
+              className="lg:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#3d4557]"
               aria-label="Close sidebar"
             >
               <X className="w-5 h-5" />
@@ -101,8 +101,8 @@ export default function AppShell() {
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
                       isActive
-                        ? 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-[#FFFDF7] dark:border dark:border-[#CC6F00]/60 shadow-sm'
-                        : 'text-gray-600 hover:bg-gray-100 dark:text-[#decaa0] dark:hover:bg-[#554737] dark:hover:text-[#FFFDF7]'
+                        ? 'bg-amber-100 text-amber-900 dark:bg-amber-900/30 dark:text-[#FFFDF7] dark:border dark:border-[#F2A900]/40 shadow-sm'
+                        : 'text-gray-600 hover:bg-gray-100 dark:text-[#cbd5e1] dark:hover:bg-[#3d4557] dark:hover:text-[#FFFDF7]'
                     }`
                   }
                   onClick={() => setSidebarOpen(false)}
@@ -124,7 +124,7 @@ export default function AppShell() {
                 <p className="text-sm font-medium text-gray-900 dark:text-[#FFFDF7] truncate">
                   {user?.name}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-[#bfa87c] truncate">
+                <p className="text-xs text-gray-500 dark:text-[#94a3b8] truncate">
                   {user?.email}
                 </p>
               </div>
@@ -136,11 +136,11 @@ export default function AppShell() {
       {/* Main content */}
       <div className="lg:pl-64">
         {/* Topbar */}
-        <header className="sticky top-0 z-30 bg-white/85 dark:bg-[#453a2d]/95 backdrop-blur-md border-b border-gray-200 dark:border-[#786144]">
+        <header className="sticky top-0 z-30 bg-white/85 dark:bg-[#2d3342]/95 backdrop-blur-md border-b border-gray-200 dark:border-[#434c5e]">
           <div className="flex items-center justify-between h-16 px-4 sm:px-6 gap-2">
             {/* Mobile menu button */}
             <button
-              className="lg:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-[#F9E6A8] dark:hover:bg-[#554737]"
+              className="lg:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-[#f1f5f9] dark:hover:bg-[#3d4557]"
               onClick={() => setSidebarOpen(true)}
               aria-label="Open menu"
               aria-expanded={sidebarOpen}
@@ -160,7 +160,7 @@ export default function AppShell() {
 
               {/* Theme toggle */}
               <button
-                className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-[#F9E6A8] dark:hover:bg-[#554737] dark:hover:text-[#F2A900] transition-colors"
+                className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-[#f1f5f9] dark:hover:bg-[#3d4557] dark:hover:text-[#F2A900] transition-colors"
                 aria-label="Toggle theme"
                 onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
                 title={resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
@@ -189,7 +189,7 @@ export default function AppShell() {
               {/* User menu */}
               <div className="relative">
                 <button
-                  className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#554737] transition-colors"
+                  className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#3d4557] transition-colors"
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   aria-expanded={userMenuOpen}
                   aria-haspopup="true"
@@ -200,14 +200,14 @@ export default function AppShell() {
                   <span className="hidden sm:block text-sm font-medium text-gray-700 dark:text-[#FFFDF7]">
                     {user?.name}
                   </span>
-                  <ChevronDown className="w-4 h-4 text-gray-500 dark:text-[#bfa87c]" />
+                  <ChevronDown className="w-4 h-4 text-gray-500 dark:text-[#94a3b8]" />
                 </button>
 
                 {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#453a2d] rounded-xl border border-gray-200 dark:border-[#786144] shadow-xl py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#2d3342] rounded-xl border border-gray-200 dark:border-[#434c5e] shadow-xl py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
                     <NavLink
                       to="/settings"
-                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-[#F9E6A8] hover:bg-gray-100 dark:hover:bg-[#554737] transition-colors"
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-[#f1f5f9] hover:bg-gray-100 dark:hover:bg-[#3d4557] transition-colors"
                       onClick={() => setUserMenuOpen(false)}
                     >
                       <Settings className="w-4 h-4" />
@@ -215,7 +215,7 @@ export default function AppShell() {
                     </NavLink>
                     <button
                       onClick={handleLogout}
-                      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-[#554737] transition-colors"
+                      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-[#3d4557] transition-colors"
                     >
                       <LogOut className="w-4 h-4" />
                       Logout
@@ -233,7 +233,7 @@ export default function AppShell() {
         </main>
 
         {/* Mobile Bottom Navigation Bar */}
-        <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-[#453a2d]/95 backdrop-blur-md border-t border-gray-200 dark:border-[#786144] px-2 py-1.5 flex items-center justify-around shadow-lg" aria-label="Mobile Navigation">
+        <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-[#2d3342]/95 backdrop-blur-md border-t border-gray-200 dark:border-[#434c5e] px-2 py-1.5 flex items-center justify-around shadow-lg" aria-label="Mobile Navigation">
           {[
             { name: 'Dashboard', href: '/', icon: LayoutDashboard },
             { name: 'Transactions', href: '/transactions', icon: CreditCard },
@@ -249,7 +249,7 @@ export default function AppShell() {
                 className={`flex flex-col items-center justify-center py-1 px-2 rounded-lg text-[10px] font-medium transition-colors ${
                   isActive
                     ? 'text-amber-500 font-bold'
-                    : 'text-gray-500 hover:text-gray-900 dark:text-[#decaa0] dark:hover:text-[#FFFDF7]'
+                    : 'text-gray-500 hover:text-gray-900 dark:text-[#cbd5e1] dark:hover:text-[#FFFDF7]'
                 }`}
               >
                 <item.icon className="w-5 h-5 mb-0.5" />
