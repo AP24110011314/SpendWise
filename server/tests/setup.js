@@ -7,7 +7,7 @@ export async function setup() {
   mongod = await MongoMemoryServer.create();
   process.env.MONGODB_URI = mongod.getUri();
   process.env.JWT_SECRET = 'test-secret-key-that-is-long-enough-for-testing';
-  process.env.CLIENT_ORIGIN = 'http://localhost:5173';
+  process.env.CLIENT_ORIGIN = 'http://localhost:5173,http://localhost:5174';
   process.env.COOKIE_NAME = 'sw_token';
   process.env.ENABLE_CRON = 'false';
   process.env.NODE_ENV = 'test';

@@ -24,18 +24,11 @@ export function createApp() {
   // Security
   app.use(helmet());
 
-  // CORS configuration
-  const isDevelopment = NODE_ENV !== 'production';
-  const clientOrigins = CLIENT_ORIGIN.split(',').map(o => o.trim().replace(/\/$/, '')).filter(Boolean);
-  const devOrigins = [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://127.0.0.1:5173',
-    'http://127.0.0.1:5174',
-  ];
-  const allowedOrigins = isDevelopment
-    ? [...new Set([...clientOrigins, ...devOrigins])]
-    : clientOrigins;
+  // CORS configuration - all origins are imported from CLIENT_ORIGIN in .env
+  const allowedOrigins = CLIENT_ORIGIN
+    .split(',')
+    .map(o => o.trim().replace(/\/$/, ''))
+    .filter(Boolean);
 
   const corsOptions = {
     origin: (origin, callback) => {
@@ -44,11 +37,18 @@ export function createApp() {
         return callback(null, true);
       }
       const normalizedOrigin = origin.replace(/\/$/, '');
-      if (
-        allowedOrigins.includes('*') ||
-        allowedOrigins.includes(normalizedOrigin) ||
-        (allowedOrigins.some(o => o.includes('vercel.app')) && normalizedOrigin.endsWith('.vercel.app'))
-      ) {
+      const isAllowed = allowedOrigins.some((allowed) => {
+        if (allowed === '*') return true;
+        if (allowed === normalizedOrigin) return true;
+        // Support wildcard patterns from CLIENT_ORIGIN (e.g. *.vercel.app, http://localhost:*)
+        if (allowed.includes('*')) {
+          const pattern = '^' + allowed.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$';
+          return new RegExp(pattern).test(normalizedOrigin);
+        }
+        return false;
+      });
+
+      if (isAllowed) {
         return callback(null, true);
       }
       // Disallowed origin: respond without CORS headers
