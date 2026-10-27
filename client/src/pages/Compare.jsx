@@ -47,36 +47,36 @@ function ComparisonCard({ title, amountA, amountB, monthAName, monthBName, delta
   const formatVal = (val) => isPercent ? `${Number(val || 0).toFixed(1)}%` : formatAmountDisplay(val, currency);
 
   return (
-    <Card className="p-5">
+    <Card className="p-3.5 sm:p-5">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{title}</h3>
+        <h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider truncate">{title}</h3>
         {icon}
       </div>
-      <div className="grid grid-cols-3 gap-2 items-center text-center">
-        <div>
-          <p className="text-xs text-gray-400 dark:text-gray-500 truncate mb-1">{monthAName}</p>
-          <p className="text-lg font-bold text-gray-900 dark:text-white">{formatVal(amountA)}</p>
+      <div className="grid grid-cols-3 gap-1 sm:gap-2 items-center text-center">
+        <div className="min-w-0">
+          <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 truncate mb-1">{monthAName}</p>
+          <p className="text-xs sm:text-base lg:text-lg font-bold text-gray-900 dark:text-white truncate" title={formatVal(amountA)}>{formatVal(amountA)}</p>
         </div>
-        <div className="flex flex-col items-center justify-center px-1 border-x border-gray-100 dark:border-gray-800">
+        <div className="flex flex-col items-center justify-center px-1 border-x border-gray-100 dark:border-gray-800 min-w-0">
           <div className={trendColor}>
             {getTrendIcon(delta)}
           </div>
-          <p className={`text-xs font-semibold mt-1 ${trendColor}`}>
+          <p className={`text-[10px] sm:text-xs font-semibold mt-0.5 sm:mt-1 ${trendColor} truncate max-w-full`} title={`${isPositive ? '+' : ''}${formatVal(delta)}`}>
             {isPositive ? '+' : ''}{formatVal(delta)}
           </p>
           {!isPercent && (
             pct === null || pct === undefined ? (
-              <span className="text-[11px] text-gray-400 font-medium">New</span>
+              <span className="text-[10px] sm:text-[11px] text-gray-400 font-medium">New</span>
             ) : (
-              <span className={`text-[11px] font-medium ${trendColor}`}>
+              <span className={`text-[10px] sm:text-[11px] font-medium ${trendColor}`}>
                 {pct > 0 ? '+' : ''}{Number(pct).toFixed(1)}%
               </span>
             )
           )}
         </div>
-        <div>
-          <p className="text-xs text-gray-400 dark:text-gray-500 truncate mb-1">{monthBName}</p>
-          <p className="text-lg font-bold text-gray-900 dark:text-white">{formatVal(amountB)}</p>
+        <div className="min-w-0">
+          <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 truncate mb-1">{monthBName}</p>
+          <p className="text-xs sm:text-base lg:text-lg font-bold text-gray-900 dark:text-white truncate" title={formatVal(amountB)}>{formatVal(amountB)}</p>
         </div>
       </div>
     </Card>

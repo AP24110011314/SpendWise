@@ -101,18 +101,18 @@ function ImportBatchCard({ batch, onUndo, onView, isUndoing }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 text-sm">
-        <div>
-          <span className="text-gray-500 dark:text-gray-400">Total Rows</span>
-          <p className="font-medium text-gray-900 dark:text-white">{batch.totalRows ?? 0}</p>
+      <div className="grid grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
+        <div className="min-w-0">
+          <span className="text-gray-500 dark:text-gray-400 text-[11px] sm:text-xs block truncate">Total Rows</span>
+          <p className="font-semibold text-gray-900 dark:text-white truncate">{batch.totalRows ?? 0}</p>
         </div>
-        <div>
-          <span className="text-gray-500 dark:text-gray-400">Duplicates Skipped</span>
-          <p className="font-medium text-amber-600 dark:text-amber-400">{batch.skippedDuplicates ?? 0}</p>
+        <div className="min-w-0">
+          <span className="text-gray-500 dark:text-gray-400 text-[11px] sm:text-xs block truncate">Duplicates</span>
+          <p className="font-semibold text-amber-600 dark:text-amber-400 truncate">{batch.skippedDuplicates ?? 0}</p>
         </div>
-        <div>
-          <span className="text-gray-500 dark:text-gray-400">Imported</span>
-          <p className="font-medium text-emerald-600 dark:text-emerald-400">{batch.importedCount ?? batch.importedRows ?? 0}</p>
+        <div className="min-w-0">
+          <span className="text-gray-500 dark:text-gray-400 text-[11px] sm:text-xs block truncate">Imported</span>
+          <p className="font-semibold text-emerald-600 dark:text-emerald-400 truncate">{batch.importedCount ?? batch.importedRows ?? 0}</p>
         </div>
       </div>
 

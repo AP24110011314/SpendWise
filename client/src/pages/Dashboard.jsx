@@ -60,16 +60,21 @@ function formatAmountWithSign(amount, currency = 'INR') {
 
 function DashboardCard({ title, value, subtitle, trend, className = '' }) {
   return (
-    <Card className={`p-3.5 sm:p-5 flex flex-col justify-between border border-gray-100 dark:border-gray-700/60 ${className}`}>
+    <Card className={`p-3 sm:p-5 flex flex-col justify-between border border-gray-100 dark:border-gray-700/60 ${className}`}>
       <div>
-        <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 truncate">{title}</p>
-        <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white mt-1 tracking-tight truncate">{value}</p>
+        <p className="text-[11px] sm:text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider truncate">{title}</p>
+        <p
+          className="text-base sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mt-1 tracking-tight truncate"
+          title={typeof value === 'string' ? value : undefined}
+        >
+          {value}
+        </p>
       </div>
       {(subtitle || trend !== undefined) && (
         <div className="flex items-center gap-1.5 mt-2 text-xs flex-wrap">
-          {subtitle && <span className="text-gray-500 dark:text-gray-400 text-[11px] sm:text-xs truncate">{subtitle}</span>}
+          {subtitle && <span className="text-gray-500 dark:text-gray-400 text-[10px] sm:text-xs truncate">{subtitle}</span>}
           {trend !== undefined && (
-            <span className={`font-semibold text-[11px] sm:text-xs ${trend >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+            <span className={`font-semibold text-[10px] sm:text-xs ${trend >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
               {trend >= 0 ? '↑' : '↓'} {Math.abs(trend).toFixed(1)}%
             </span>
           )}
@@ -259,9 +264,9 @@ function BudgetProgressChart({ budgets, currency = 'INR' }) {
     <div className="h-64 overflow-y-auto pr-2">
       {chartData.map((budget, index) => (
         <div key={index} className="mb-4 last:mb-0" role="progressbar" aria-valuenow={budget.percentage} aria-valuemin={0} aria-valuemax={100} aria-label={`${budget.name} budget ${budget.percentage}% used`}>
-          <div className="flex justify-between text-sm mb-1">
-            <span className="font-medium text-gray-900 dark:text-white truncate pr-2">{budget.name}</span>
-            <span className="text-gray-500 dark:text-gray-400 whitespace-nowrap">
+          <div className="flex justify-between items-center text-xs sm:text-sm mb-1.5 gap-2">
+            <span className="font-medium text-gray-900 dark:text-white truncate">{budget.name}</span>
+            <span className="text-gray-500 dark:text-gray-400 text-xs shrink-0 font-medium">
               {formatAmount(budget.spent * 100, currency)} / {formatAmount(budget.limit * 100, currency)}
             </span>
           </div>
@@ -394,28 +399,47 @@ function ForecastChart({ forecast, currency = 'INR' }) {
   const remaining = Math.max(0, projectedTotal - spentSoFar);
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-4 text-center">
-        <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Spent So Far</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{formatAmount(spentSoFar, currency)}</p>
+    <div className="space-y-3.5 sm:space-y-4">
+      {/* 3 Metric Cards - responsive horizontal flex on mobile, 3-column grid on desktop */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4">
+        <div className="p-3.5 sm:p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl flex items-center justify-between sm:flex-col sm:justify-center sm:text-center border border-gray-100 dark:border-gray-700/60 transition-all">
+          <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Spent So Far</p>
+          <p
+            className="text-base sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mt-0 sm:mt-1 tracking-tight truncate max-w-[60%] sm:max-w-full"
+            title={formatAmount(spentSoFar, currency)}
+          >
+            {formatAmount(spentSoFar, currency)}
+          </p>
         </div>
-        <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Upcoming Recurring</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{formatAmount(upcomingRecurringTotal, currency)}</p>
+
+        <div className="p-3.5 sm:p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl flex items-center justify-between sm:flex-col sm:justify-center sm:text-center border border-gray-100 dark:border-gray-700/60 transition-all">
+          <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Upcoming Recurring</p>
+          <p
+            className="text-base sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mt-0 sm:mt-1 tracking-tight truncate max-w-[60%] sm:max-w-full"
+            title={formatAmount(upcomingRecurringTotal, currency)}
+          >
+            {formatAmount(upcomingRecurringTotal, currency)}
+          </p>
         </div>
-        <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Projected Total</p>
-          <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-1">{formatAmount(projectedTotal, currency)}</p>
+
+        <div className="p-3.5 sm:p-4 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 rounded-xl flex items-center justify-between sm:flex-col sm:justify-center sm:text-center transition-all">
+          <p className="text-xs sm:text-sm font-medium text-indigo-700 dark:text-indigo-300">Projected Total</p>
+          <p
+            className="text-base sm:text-xl lg:text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-0 sm:mt-1 tracking-tight truncate max-w-[60%] sm:max-w-full"
+            title={formatAmount(projectedTotal, currency)}
+          >
+            {formatAmount(projectedTotal, currency)}
+          </p>
         </div>
       </div>
 
-      <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-900 dark:text-white">Month Progress</span>
-          <span className="text-sm text-gray-500 dark:text-gray-400">Day {daysElapsed} of {daysInMonth}</span>
+      {/* Month Progress Card */}
+      <div className="p-3.5 sm:p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700/60">
+        <div className="flex items-center justify-between mb-2 gap-2">
+          <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">Month Progress</span>
+          <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 shrink-0">Day {daysElapsed} of {daysInMonth}</span>
         </div>
-        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div className="h-2.5 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
           <div
             className="h-full bg-indigo-600 rounded-full transition-all duration-500"
             style={{ width: `${Math.min((daysElapsed / daysInMonth) * 100, 100)}%` }}
@@ -423,10 +447,11 @@ function ForecastChart({ forecast, currency = 'INR' }) {
         </div>
       </div>
 
-      <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-900 dark:text-white">Confidence</span>
-          <span className={`text-sm font-medium px-2 py-1 rounded-full ${
+      {/* Confidence Card */}
+      <div className="p-3.5 sm:p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700/60">
+        <div className="flex items-center justify-between mb-1.5 gap-2">
+          <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">Confidence</span>
+          <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
             confidence === 'high' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
             confidence === 'medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
             'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400'
@@ -434,22 +459,23 @@ function ForecastChart({ forecast, currency = 'INR' }) {
             {confidence.charAt(0).toUpperCase() + confidence.slice(1)}
           </span>
         </div>
-        <div className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="text-xs text-gray-500 dark:text-gray-400">
           {confidence === 'high' && 'Strong historical data and mid-month'}
           {confidence === 'medium' && 'Some history, early in month'}
           {confidence === 'low' && 'Limited data for reliable projection'}
         </div>
       </div>
 
+      {/* Overall Budget Card */}
       {forecast.budget && (
-        <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl" role="alert">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-900 dark:text-white">Overall Budget</span>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="p-3.5 sm:p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700/60" role="alert">
+          <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+            <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">Overall Budget</span>
+            <span className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 truncate">
               {formatAmount(forecast.budget.limit, currency)}
             </span>
           </div>
-          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div className="h-2.5 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-500"
               style={{
@@ -459,34 +485,43 @@ function ForecastChart({ forecast, currency = 'INR' }) {
               }}
             />
           </div>
-          <div className="flex justify-between text-xs mt-1">
-            <span className="text-gray-500 dark:text-gray-400">
+          <div className="flex justify-between items-center text-xs mt-1.5 gap-2 flex-wrap">
+            <span className="text-gray-500 dark:text-gray-400 truncate">
               Projected: {formatAmount(projectedTotal, currency)}
             </span>
-            <span className={
-              forecast.budget.willExceed ? 'text-red-600 dark:text-red-400 font-medium' : 'text-green-600 dark:text-green-400 font-medium'
-            }>
+            <span className={`text-[11px] sm:text-xs font-semibold ${
+              forecast.budget.willExceed ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
+            }`}>
               {forecast.budget.willExceed ? '⚠ Projected to exceed budget' : '✓ Within budget'}
             </span>
           </div>
         </div>
       )}
 
+      {/* By Category */}
       {forecast.categories && forecast.categories.length > 0 && (
         <div>
-          <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">By Category</h4>
-          <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
+          <h4 className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white mb-2.5">By Category</h4>
+          <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
             {forecast.categories.map((cat, index) => (
-              <div key={cat.categoryId} className="flex items-center gap-3">
-                <div
-                  className="w-3 h-3 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: cat.color || COLORS[index % COLORS.length] }}
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{cat.name}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Spent: {formatAmount(cat.spent, currency)} → Projected: {formatAmount(cat.projected, currency)}
-                  </p>
+              <div key={cat.categoryId} className="p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700/50">
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div
+                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: cat.color || COLORS[index % COLORS.length] }}
+                    />
+                    <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white truncate">{cat.name}</p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="text-xs font-semibold text-gray-900 dark:text-white">
+                      {formatAmount(cat.projected, currency)}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400 gap-2">
+                  <span>Spent: {formatAmount(cat.spent, currency)}</span>
+                  <span>Proj: {formatAmount(cat.projected, currency)}</span>
                 </div>
               </div>
             ))}
@@ -637,44 +672,44 @@ export default function Dashboard() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <Card className="p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Category Breakdown</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Category Breakdown</h3>
             <span className="text-xs text-gray-500 dark:text-gray-400">{formatMonth(selectedMonth)}</span>
           </div>
           <CategoryBreakdownChart data={byCategory} currency={currency} />
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Income vs Expenses</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Income vs Expenses</h3>
             <span className="text-xs text-gray-500 dark:text-gray-400">Last 6 months</span>
           </div>
           <IncomeExpenseChart data={trend} currency={currency} />
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <Card className="p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Budget Progress</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Budget Progress</h3>
             <span className="text-xs text-gray-500 dark:text-gray-400">{formatMonth(selectedMonth)}</span>
           </div>
           <BudgetProgressChart budgets={forecastData?.categories || []} currency={currency} />
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Daily Cumulative Spend</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Daily Cumulative Spend</h3>
             <span className="text-xs text-gray-500 dark:text-gray-400">{formatMonth(selectedMonth)}</span>
           </div>
           <DailyCumulativeChart data={daily} currency={currency} />
         </Card>
       </div>
 
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Spending Forecast</h3>
+      <Card className="p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3.5 sm:mb-4">Spending Forecast</h3>
         <ForecastChart forecast={forecastData} currency={currency} />
       </Card>
     </div>
