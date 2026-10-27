@@ -13,7 +13,7 @@ const importBatchSchema = new mongoose.Schema(
       reason: { type: String, required: true }
     }],
   },
-  { timestamps: true }
+  { timestamps: true, suppressReservedKeysWarning: true }
 );
 
 importBatchSchema.index({ userId: 1, createdAt: -1 });

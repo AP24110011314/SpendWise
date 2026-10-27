@@ -39,9 +39,25 @@ async function start() {
       });
     }
 
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT} (${NODE_ENV})`);
     });
+
+    // Graceful shutdown handling
+    const shutdown = (signal) => {
+      logger.info(`Received ${signal}, closing HTTP server...`);
+      server.close(() => {
+        logger.info('HTTP server closed cleanly');
+        process.exit(0);
+      });
+      setTimeout(() => {
+        logger.warn('Forcing server shutdown after timeout');
+        process.exit(1);
+      }, 2000).unref();
+    };
+
+    process.once('SIGTERM', () => shutdown('SIGTERM'));
+    process.once('SIGINT', () => shutdown('SIGINT'));
   } catch (err) {
     logger.error({ err }, 'Failed to start server');
     process.exit(1);
