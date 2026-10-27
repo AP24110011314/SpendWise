@@ -2,7 +2,10 @@ import axios from 'axios';
 
 const TOKEN_KEY = 'sw_access_token';
 
-const rawBase = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_URL || '/api';
+const rawBase =
+  import.meta.env.VITE_API_BASE ||
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD ? 'https://spendwise-9ke3.onrender.com/api' : '/api');
 const baseURL = rawBase.endsWith('/api') || rawBase === '/api' ? rawBase : `${rawBase.replace(/\/$/, '')}/api`;
 
 const api = axios.create({

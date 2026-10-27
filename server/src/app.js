@@ -21,13 +21,17 @@ export function createApp() {
   // Logging
   app.use(pinoHttp({ logger }));
 
-  // Security
-  app.use(helmet());
+  // Security - allow cross-origin requests from frontend deployments
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    })
+  );
 
-  // CORS configuration - all origins are imported from CLIENT_ORIGIN in .env
-  const allowedOrigins = CLIENT_ORIGIN
+  // CORS configuration - allow all .vercel.app deployments and origins from CLIENT_ORIGIN
+  const clientOrigins = CLIENT_ORIGIN
     .split(',')
-    .map(o => o.trim().replace(/\/$/, ''))
+    .map(o => o.trim().replace(/^["']|["']$/g, '').replace(/\/$/, ''))
     .filter(Boolean);
 
   const corsOptions = {
@@ -36,10 +40,19 @@ export function createApp() {
       if (!origin) {
         return callback(null, true);
       }
-      const normalizedOrigin = origin.replace(/\/$/, '');
-      const isAllowed = allowedOrigins.some((allowed) => {
-        if (allowed === '*') return true;
-        if (allowed === normalizedOrigin) return true;
+      const normalizedOrigin = origin.trim().replace(/\/$/, '');
+
+      // Always allow any Vercel deployment (production, preview PRs) and local development
+      if (
+        normalizedOrigin.endsWith('.vercel.app') ||
+        normalizedOrigin.startsWith('http://localhost:') ||
+        normalizedOrigin.startsWith('http://127.0.0.1:')
+      ) {
+        return callback(null, true);
+      }
+
+      const isAllowed = clientOrigins.some((allowed) => {
+        if (allowed === '*' || allowed === normalizedOrigin) return true;
         // Support wildcard patterns from CLIENT_ORIGIN (e.g. *.vercel.app, http://localhost:*)
         if (allowed.includes('*')) {
           const pattern = '^' + allowed.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$';
@@ -51,13 +64,16 @@ export function createApp() {
       if (isAllowed) {
         return callback(null, true);
       }
-      // Disallowed origin: respond without CORS headers
       return callback(null, false);
     },
     credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    optionsSuccessStatus: 204,
   };
 
   app.use(cors(corsOptions));
+  app.options('*', cors(corsOptions));
 
   // Health check endpoints for Render and monitoring
   app.get('/health', (req, res) => res.status(200).json({ status: 'ok', service: 'SpendWise API' }));

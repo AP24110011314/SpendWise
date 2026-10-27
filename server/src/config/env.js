@@ -15,7 +15,7 @@ const envSchema = z.object({
   MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
   JWT_EXPIRES_IN: z.string().default('7d'),
-  CLIENT_ORIGIN: z.string().default('http://localhost:5173'),
+  CLIENT_ORIGIN: z.string().default('https://*.vercel.app,http://localhost:5173,http://localhost:5174'),
   COOKIE_NAME: z.string().default('sw_token'),
   ENABLE_CRON: z.coerce.boolean().default(true),
   RECURRING_CRON: z.string().default('5 0 * * *'),
