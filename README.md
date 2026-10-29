@@ -14,13 +14,23 @@ A personal finance tracker built with the MERN stack.
 - **CSV Import/Export** — Import bank statements with duplicate detection, export filtered data
 - **Notifications** — In-app alerts when budgets are exceeded
 
-- ## 📸 Screenshots
+-📸 Screenshots
 
-### 1. Login Page
-![SpendWise Login Page](screenshot/p1.png)
+1. Login Page
 
-### 2. Dashboard
-![SpendWise Dashboard](screenshot/p2.png)
+<div align="center">
+  <img src="screenshot/p1.png" alt="SpendWise Login Page" width="85%" />
+</div>
+
+⸻
+
+2. Dashboard
+
+<div align="center">
+  <img src="screenshot/p2.png" alt="SpendWise Dashboard" width="85%" />
+</div>
+
+⸻
 
 ## Tech Stack
 
